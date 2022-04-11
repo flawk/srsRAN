@@ -673,7 +673,10 @@ int main(int argc, char** argv)
   INFO("\nEntering main loop...");
 
   // Variables for measurements
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-but-set-variable"
   uint32_t nframes = 0;
+#pragma clang diagnostic pop
   float    rsrp0 = 0.0, rsrp1 = 0.0, rsrq = 0.0, snr = 0.0, enodebrate = 0.0, uerate = 0.0, procrate = 0.0,
         sinr[SRSRAN_MAX_LAYERS][SRSRAN_MAX_CODEBOOKS] = {}, sync_err[SRSRAN_MAX_PORTS][SRSRAN_MAX_PORTS] = {};
   bool decode_pdsch = false;

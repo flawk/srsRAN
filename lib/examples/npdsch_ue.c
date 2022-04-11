@@ -330,7 +330,10 @@ int main(int argc, char** argv)
 #ifndef DISABLE_RF
   srsran_rf_t rf;
 #endif
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-but-set-variable"
   uint32_t nof_trials = 0;
+#pragma clang diagnostic pop
   int      n;
   uint8_t  bch_payload[SRSRAN_MIB_NB_LEN] = {};
   int      sfn_offset;
@@ -499,7 +502,10 @@ int main(int argc, char** argv)
 #endif
 
   // Variables for measurements
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-but-set-variable"
   uint32_t nframes = 0;
+#pragma clang diagnostic pop
   float    rsrp = 0.0, rsrq = 0.0, noise = 0.0;
 
 #ifndef DISABLE_RF

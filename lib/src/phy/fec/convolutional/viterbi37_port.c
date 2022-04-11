@@ -178,7 +178,7 @@ int update_viterbi37_blk_port(void* p, uint8_t* syms, uint32_t nbits, uint32_t* 
 
   if (p == NULL)
     return -1;
-  uint32_t k = 0;
+  //uint32_t k = 0;
   d          = (decision_t*)vp->dp;
 
 #ifdef DEBUG
@@ -196,7 +196,7 @@ int update_viterbi37_blk_port(void* p, uint8_t* syms, uint32_t nbits, uint32_t* 
     sym1 = *syms++;
     sym2 = *syms++;
 
-    k++;
+    //k++;
     for (i = 0; i < 32; i++)
       BFLY(i);
 

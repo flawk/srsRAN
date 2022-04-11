@@ -427,7 +427,10 @@ int srsran_dmrs_pdcch_get_measure(const srsran_dmrs_pdcch_estimator_t* q,
   // Initialise measurements
   float rsrp                              = 0.0f; //< Averages linear RSRP
   float epre                              = 0.0f; //< Averages linear EPRE
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-but-set-variable"
   float cfo_avg_Hz                        = 0.0f; //< Averages CFO in Radians
+#pragma clang diagnostic pop
   float sync_err_avg                      = 0.0f; //< Averages synchronization
   cf_t  corr[SRSRAN_CORESET_DURATION_MAX] = {};   //< Saves correlation for the different symbols
 

@@ -177,7 +177,10 @@ int srsran_nsss_corr_init(srsran_nsss_synch_t* q)
 
     // one symbol at a time
     cf_t* output     = q->nsss_signal_time[i];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-but-set-variable"
     int   output_len = 0;
+#pragma clang diagnostic pop
     for (int i = 0; i < SRSRAN_NSSS_NSYMB; i++) {
       // zero buffer, copy NSSS symbol to appr. pos and transform to time-domain
       srsran_vec_cf_zero(nsss_signal_pad, q->fft_size);

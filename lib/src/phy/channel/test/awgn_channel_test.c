@@ -82,7 +82,10 @@ int main(int argc, char** argv)
   int      ret           = SRSRAN_SUCCESS;
   cf_t*    input_buffer  = NULL;
   cf_t*    output_buffer = NULL;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-but-set-variable"
   uint64_t count_samples = 0;
+#pragma clang diagnostic pop
   uint64_t count_us      = 0;
 
 #ifdef ENABLE_GUI
