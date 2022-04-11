@@ -1,0 +1,6 @@
+### Misc. build directory
+/build
+
+### CLion directories
+/.idea
+/cmake-build-*
