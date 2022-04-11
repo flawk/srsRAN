@@ -160,10 +160,13 @@ find_package(Threads REQUIRED)
 
 # FFT
 if(USE_MKL)
-  find_package(MKL REQUIRED)
+  if(BUILD_STATIC)
+    set(MKL_LINK static)
+  endif()
+  find_package(MKL CONFIG REQUIRED)
   include_directories(${MKL_INCLUDE_DIRS})
   link_directories(${MKL_LIBRARY_DIRS})
-  set(FFT_LIBRARIES "${MKL_STATIC_LIBRARIES}") # Static by default
+  set(FFT_LIBRARIES MKL::MKL)
 else(USE_MKL)
   find_package(FFTW3F REQUIRED)
   if(FFTW3F_FOUND)
