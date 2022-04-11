@@ -434,7 +434,7 @@ static int dci_format0_pack(srsran_cell_t*      cell,
     *y++ = 1;
     if (cell->nof_prb < 50) {
       n_ul_hop = 1; // Table 8.4-1 of 36.213
-      *y++     = dci->freq_hop_fl & 1;
+      *y++     = (dci->freq_hop_fl - 2) & 1;
     } else {
       n_ul_hop = 2; // Table 8.4-1 of 36.213
       *y++     = (dci->freq_hop_fl & 2) >> 1;
@@ -518,7 +518,7 @@ static int dci_format0_unpack(srsran_cell_t*      cell,
   } else {
     if (cell->nof_prb < 50) {
       n_ul_hop         = 1; // Table 8.4-1 of 36.213
-      dci->freq_hop_fl = *y++;
+      dci->freq_hop_fl = *y++ + 2;
     } else {
       n_ul_hop         = 2; // Table 8.4-1 of 36.213
       dci->freq_hop_fl = y[0] << 1 | y[1];

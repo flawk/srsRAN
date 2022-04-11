@@ -64,7 +64,7 @@ typedef struct SRSRAN_API {
 } srsran_dci_location_t;
 
 typedef struct SRSRAN_API {
-  uint8_t               payload[SRSRAN_DCI_MAX_BITS];
+  uint8_t               payload[SRSRAN_DCI_MAX_BITS + 16];
   uint32_t              nof_bits;
   srsran_dci_location_t location;
   srsran_dci_format_t   format;
