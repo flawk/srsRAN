@@ -29,12 +29,12 @@
 
 namespace srsran {
 
-struct phy_log_args_t {
+typedef struct phy_log_args_t {
   std::string phy_level     = "none";
   std::string phy_lib_level = "none";
   std::string id_preamble   = "";
   int         phy_hex_limit = -1;
-};
+} phy_log_args_t;
 
 struct rf_args_band_t {
   float min;
