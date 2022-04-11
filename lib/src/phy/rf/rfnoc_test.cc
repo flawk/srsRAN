@@ -183,7 +183,7 @@ private:
         rxd_nsamples_total += rxd_nsamples;
         rxd_count++;
         float avg_power = srsran_vec_avg_power_cf(rx_buffer[0], rxd_nsamples);
-        if (std::isnan(avg_power) or avg_power > 1e-6) {
+        if (srsran::isnan(avg_power) or avg_power > 1e-6) {
           Warning("-- RX " << rxd_count << " Received " << avg_power);
         }
       }

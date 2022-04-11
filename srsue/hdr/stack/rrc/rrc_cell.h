@@ -54,25 +54,25 @@ public:
   bool equals(uint32_t earfcn, uint32_t pci) { return earfcn == phy_cell.earfcn && pci == phy_cell.pci; }
 
   // NaN means an RSRP value has not yet been obtained. Keep then in the list and clean them if never updated
-  bool greater(const meas_cell* x) const { return rsrp > x->rsrp || std::isnan(rsrp); }
-  bool greater(const meas_cell& x) const { return rsrp > x.rsrp || std::isnan(rsrp); }
+  bool greater(const meas_cell* x) const { return rsrp > x->rsrp || srsran::isnan(rsrp); }
+  bool greater(const meas_cell& x) const { return rsrp > x.rsrp || srsran::isnan(rsrp); }
 
   void set_rsrp(float rsrp_)
   {
-    if (!std::isnan(rsrp_)) {
+    if (!srsran::isnan(rsrp_)) {
       rsrp = rsrp_;
     }
     timer.run();
   }
   void set_rsrq(float rsrq_)
   {
-    if (!std::isnan(rsrq_)) {
+    if (!srsran::isnan(rsrq_)) {
       rsrq = rsrq_;
     }
   }
   void set_cfo(float cfo_Hz_)
   {
-    if (not std::isnan(cfo_Hz_) && not std::isinf(cfo_Hz_)) {
+    if (not srsran::isnan(cfo_Hz_) && not srsran::isinf(cfo_Hz_)) {
       phy_cell.cfo_hz = cfo_Hz_;
     }
   }

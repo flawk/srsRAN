@@ -106,7 +106,7 @@ void metrics_stdout::set_metrics_helper(uint32_t                          num_ue
     }
     fmt::print("   {:>1}", int(mac.ues[i].dl_ri));
     float dl_mcs = (is_nr) ? mac.ues[i].dl_mcs : phy[i].dl.mcs;
-    if (not isnan(dl_mcs)) {
+    if (not srsran::isnan(dl_mcs)) {
       fmt::print("   {:>2}", int(dl_mcs));
     } else {
       fmt::print("   {:>2}", 0);
@@ -136,25 +136,25 @@ void metrics_stdout::set_metrics_helper(uint32_t                          num_ue
       return sinr;
     };
     float pusch_sinr = (is_nr) ? mac.ues[i].pusch_sinr : phy[i].ul.pusch_sinr;
-    if (not isnan(pusch_sinr) and not iszero(pusch_sinr)) {
+    if (not srsran::isnan(pusch_sinr) and not iszero(pusch_sinr)) {
       fmt::print(" {:>5.1f}", clamp_sinr(pusch_sinr));
     } else {
       fmt::print(" {:>5.5}", "n/a");
     }
     float pucch_sinr = (is_nr) ? mac.ues[i].pucch_sinr : phy[i].ul.pucch_sinr;
-    if (not isnan(pucch_sinr) and not iszero(pucch_sinr)) {
+    if (not srsran::isnan(pucch_sinr) and not iszero(pucch_sinr)) {
       fmt::print("  {:>5.1f}", clamp_sinr(pucch_sinr));
     } else {
       fmt::print("  {:>5.5}", "n/a");
     }
-    int phr = mac.ues[i].phr;
-    if (not isnan(phr)) {
+    float phr = mac.ues[i].phr;
+    if (not srsran::isnan(phr)) {
       fmt::print("   {:>2}", phr);
     } else {
       fmt::print("   {:>2}", 0);
     }
     float ul_mcs = (is_nr) ? mac.ues[i].ul_mcs : phy[i].ul.mcs;
-    if (not isnan(ul_mcs)) {
+    if (not srsran::isnan(ul_mcs)) {
       fmt::print("   {:>2}", int(ul_mcs));
     } else {
       fmt::print("   {:>2}", 0);
@@ -206,7 +206,7 @@ std::string metrics_stdout::float_to_string(float f, int digits, int field_width
 {
   std::ostringstream os;
   int                precision;
-  if (isnan(f) or fabs(f) < 0.0001) {
+  if (srsran::isnan(f) or fabs(f) < 0.0001) {
     f         = 0.0;
     precision = digits - 1;
   } else {

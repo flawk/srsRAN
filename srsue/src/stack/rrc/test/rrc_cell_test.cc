@@ -31,8 +31,8 @@ int test_meas_cell()
 
   TESTASSERT(not invalid_cell.is_valid());
   TESTASSERT(cell.is_valid());
-  TESTASSERT(std::isnan(cell.get_rsrp()));
-  TESTASSERT(std::isnan(cell.get_rsrq()));
+  TESTASSERT(srsran::isnan(cell.get_rsrp()));
+  TESTASSERT(srsran::isnan(cell.get_rsrq()));
   TESTASSERT(not cell.has_sib(0) and not cell.has_sib(1));
 
   // NAN does not invalidate measurements

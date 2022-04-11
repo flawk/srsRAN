@@ -31,6 +31,7 @@
 #include <memory>
 #include <stdint.h>
 #include <string>
+#include <cmath>
 #include <sys/time.h>
 
 /*******************************************************************************
@@ -99,6 +100,76 @@ inline std::string to_string(const srsran_rat_t& type)
 {
   constexpr static const char* options[] = {"LTE", "NR"};
   return enum_to_text(options, (uint32_t)srsran_rat_t::nulltype, (uint32_t)type);
+}
+
+
+// checks
+[[nodiscard]] constexpr bool isinf(float x)
+{
+#ifndef __FAST_MATH__
+  return std::isinf(x);
+#else
+  union {
+    float    f;
+    uint32_t u;
+  } u = {x};
+  return u.u == 0x7f800000U || // positive
+         u.u == 0xff800000U;   // negative
+#endif
+}
+
+[[nodiscard]] constexpr bool isinf(double x)
+{
+#ifndef __FAST_MATH__
+  return std::isinf(x);
+#else
+  union {
+    double   f;
+    uint64_t u;
+  } u = {x};
+  return u.u == 0x7ff0000000000000UL || // positive
+         u.u == 0xfff0000000000000UL;   // negative
+#endif
+}
+
+[[nodiscard]] constexpr bool isnan(double x)
+{
+#ifndef __FAST_MATH__
+  return std::isnan(x);
+#else
+  union {
+    double   f;
+    uint64_t u;
+  } u = {x};
+  /*return u.u == 0x7ff8000000000000UL ||
+         u.u == 0xfff8000000000000UL ||
+         u.u == 0x7ff4000000000000UL ||
+         u.u == 0xfff4000000000000UL;*/
+  return (((uint32_t)(u.u >> 32UL) & 0x7fffffffU) + ((uint32_t)u.u != 0U ? 1U : 0U)) > 0x7ff00000U;
+#endif
+}
+
+[[nodiscard]] constexpr bool isnan(float x)
+{
+#ifndef __FAST_MATH__
+  return std::isnan(x);
+#else
+  union {
+    float    f;
+    uint32_t u;
+  } u = {x};
+  return (u.u << 1U) > 0xff000000U;
+#endif
+}
+
+template <class T>
+[[nodiscard]] constexpr bool isfinite(T x)
+{
+#ifndef __FAST_MATH__
+  return std::isfinite(x);
+#else
+  return !isnan(x) && !isinf(x);
+#endif
 }
 
 } // namespace srsran

@@ -338,7 +338,7 @@ bool cc_worker::decode_pusch_rnti(stack_interface_phy_lte::ul_sched_grant_t& ul_
     phy->stack->snr_info(ul_sf.tti, rnti, cc_idx, snr_db, mac_interface_phy_lte::PUSCH);
 
     // Notify MAC of Time Alignment only if it enabled and valid measurement, ignore value otherwise
-    if (ul_cfg.pusch.meas_ta_en and not std::isnan(enb_ul.chest_res.ta_us) and not std::isinf(enb_ul.chest_res.ta_us)) {
+    if (ul_cfg.pusch.meas_ta_en and not srsran::isnan(enb_ul.chest_res.ta_us) and not srsran::isinf(enb_ul.chest_res.ta_us)) {
       phy->stack->ta_info(ul_sf.tti, rnti, enb_ul.chest_res.ta_us);
     }
   }

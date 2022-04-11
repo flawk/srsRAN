@@ -21,6 +21,7 @@
 
 #include "srsran/phy/utils/random.h"
 #include "srsran/phy/utils/bit.h"
+#include "srsran/common/common.h"
 #include <complex>
 #include <random>
 
@@ -109,7 +110,7 @@ float srsran_random_uniform_real_dist(srsran_random_t q, float min, float max)
 
   if (q) {
     auto* h = (random_wrap*)q;
-    while (std::isnan(ret)) {
+    while (srsran::isnan(ret)) {
       ret = h->uniform_real_dist(min, max);
     }
   }
