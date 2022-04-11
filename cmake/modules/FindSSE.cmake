@@ -24,7 +24,7 @@
 
 include(CheckCSourceRuns)
 
-option(ENABLE_SSE    "Enable compile-time SSE4.1 support." ON)
+option(ENABLE_SSE    "Enable compile-time SSE4.2 support." ON)
 option(ENABLE_AVX    "Enable compile-time AVX support."    ON)
 option(ENABLE_AVX2   "Enable compile-time AVX2 support."   ON)
 option(ENABLE_FMA    "Enable compile-time FMA support."    ON)
@@ -35,7 +35,7 @@ if (ENABLE_SSE)
     # Check compiler for SSE4_1 intrinsics
     #
     if (CMAKE_COMPILER_IS_GNUCC OR (CMAKE_C_COMPILER_ID MATCHES "Clang") OR (CMAKE_CXX_COMPILER_ID MATCHES "Clang"))
-        set(CMAKE_REQUIRED_FLAGS "-msse4.1")
+        set(CMAKE_REQUIRED_FLAGS "-msse4.2")
         check_c_source_runs("
         #include <emmintrin.h>
         #include <smmintrin.h>
@@ -50,7 +50,7 @@ if (ENABLE_SSE)
     endif()
 
     if (HAVE_SSE)        
-        message(STATUS "SSE4.1 is enabled - target CPU must support it")
+        message(STATUS "SSE4.2 is enabled - target CPU must support it")
     endif()
     
     if (ENABLE_AVX)
