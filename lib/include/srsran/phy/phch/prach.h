@@ -67,6 +67,7 @@ typedef struct SRSRAN_API {
   uint32_t rsi;          // rootSequenceIndex
   bool     hs;           // highSpeedFlag
   uint32_t zczc;         // zeroCorrelationZoneConfig
+  uint32_t N_prb_ul;     // nof_prb for uplink
   uint32_t N_ifft_ul;    // IFFT size for uplink
   uint32_t N_ifft_prach; // IFFT size for PRACH generation
 

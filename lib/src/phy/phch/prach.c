@@ -102,6 +102,7 @@ static void prach_cexp(uint32_t N_zc, uint32_t u, cf_t* root)
 
 int srsran_prach_set_cell_(srsran_prach_t*      p,
                            uint32_t             N_ifft_ul,
+                           uint32_t             N_prb_ul,
                            srsran_prach_cfg_t*  cfg,
                            srsran_tdd_config_t* tdd_config);
 
@@ -552,7 +553,7 @@ int srsran_prach_gen_seqs(srsran_prach_t* p)
 
 int srsran_prach_set_cfg(srsran_prach_t* p, srsran_prach_cfg_t* cfg, uint32_t nof_prb)
 {
-  return srsran_prach_set_cell_(p, srsran_symbol_sz(nof_prb), cfg, &cfg->tdd_config);
+  return srsran_prach_set_cell_(p, srsran_symbol_sz(nof_prb), nof_prb, cfg, &cfg->tdd_config);
 }
 
 int srsran_prach_init(srsran_prach_t* p, uint32_t max_N_ifft_ul)
@@ -618,6 +619,7 @@ int srsran_prach_init(srsran_prach_t* p, uint32_t max_N_ifft_ul)
 
 int srsran_prach_set_cell_(srsran_prach_t*      p,
                            uint32_t             N_ifft_ul,
+                           uint32_t             N_prb_ul,
                            srsran_prach_cfg_t*  cfg,
                            srsran_tdd_config_t* tdd_config)
 {
@@ -697,6 +699,7 @@ int srsran_prach_set_cell_(srsran_prach_t*      p,
     }
 
     // Create our FFT objects and buffers
+    p->N_prb_ul = N_prb_ul;
     p->N_ifft_ul = N_ifft_ul;
     if (4 == preamble_format) {
       p->N_ifft_prach = p->N_ifft_ul * DELTA_F / DELTA_F_RA_4;
@@ -751,7 +754,7 @@ int srsran_prach_gen(srsran_prach_t* p, uint32_t seq_index, uint32_t freq_offset
   int ret = SRSRAN_ERROR;
   if (p != NULL && seq_index < N_SEQS && signal != NULL) {
     // Calculate parameters
-    uint32_t N_rb_ul = srsran_nof_prb(p->N_ifft_ul);
+    uint32_t N_rb_ul = p->N_prb_ul;
     uint32_t k_0     = freq_offset * N_RB_SC - N_rb_ul * N_RB_SC / 2 + p->N_ifft_ul / 2;
     uint32_t K       = DELTA_F / DELTA_F_RA;
     uint32_t begin   = PHI + (K * k_0) + (p->is_nr ? 0 : (K / 2));
@@ -879,7 +882,7 @@ int srsran_prach_process(srsran_prach_t* p,
 {
   float max_to_cancel = 0;
   cancellation_idx    = -1;
-  int max_idx         = 0;
+  //int max_idx         = 0;
   srsran_vec_cf_zero(p->cross, p->N_zc);
   srsran_vec_cf_zero(p->corr_freq, p->N_zc);
   for (int i = 0; i < p->num_ra_preambles; i++) {
@@ -920,7 +923,7 @@ int srsran_prach_process(srsran_prach_t* p,
           p->peak_offsets[j] = k - start;
           if (p->peak_values[j] > max_peak) {
             max_peak = p->peak_values[j];
-            max_idx  = k;
+            //max_idx  = k;
           }
         }
       }
@@ -990,7 +993,7 @@ int srsran_prach_detect_offset(srsran_prach_t* p,
     *n_indices = 0;
 
     // Extract bins of interest
-    uint32_t N_rb_ul = srsran_nof_prb(p->N_ifft_ul);
+    uint32_t N_rb_ul = p->N_prb_ul;
     uint32_t k_0     = freq_offset * N_RB_SC - N_rb_ul * N_RB_SC / 2 + p->N_ifft_ul / 2;
     uint32_t K       = DELTA_F / DELTA_F_RA;
     uint32_t begin   = PHI + (K * k_0) + (p->is_nr ? 0 : (K / 2));
