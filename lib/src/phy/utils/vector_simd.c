@@ -624,6 +624,42 @@ float srsran_vec_acc_ff_simd(const float* x, const int len)
   return acc_sum;
 }
 
+float srsran_vec_acc_abs_ff_simd(const float* x, const int len)
+{
+  int   i       = 0;
+  float acc_sum = 0.0f;
+
+#if SRSRAN_SIMD_F_SIZE
+  simd_f_t simd_sum = srsran_simd_f_zero();
+
+  if (SRSRAN_IS_ALIGNED(x)) {
+    for (; i < len - SRSRAN_SIMD_F_SIZE + 1; i += SRSRAN_SIMD_F_SIZE) {
+      simd_f_t a = srsran_simd_f_abs(srsran_simd_f_load(&x[i]));
+
+      simd_sum = srsran_simd_f_add(simd_sum, a);
+    }
+  } else {
+    for (; i < len - SRSRAN_SIMD_F_SIZE + 1; i += SRSRAN_SIMD_F_SIZE) {
+      simd_f_t a = srsran_simd_f_abs(srsran_simd_f_loadu(&x[i]));
+
+      simd_sum = srsran_simd_f_add(simd_sum, a);
+    }
+  }
+
+  srsran_simd_aligned float sum[SRSRAN_SIMD_F_SIZE];
+  srsran_simd_f_store(sum, simd_sum);
+  for (int k = 0; k < SRSRAN_SIMD_F_SIZE; k++) {
+    acc_sum += sum[k];
+  }
+#endif
+
+  for (; i < len; i++) {
+    acc_sum += fabsf(x[i]);
+  }
+
+  return acc_sum;
+}
+
 cf_t srsran_vec_acc_cc_simd(const cf_t* x, const int len)
 {
   int  i       = 0;
@@ -1360,6 +1396,64 @@ void srsran_vec_sc_prod_fcc_simd(const float* x, const cf_t h, cf_t* z, const in
   for (; i < len; i++) {
     z[i] = x[i] * h;
   }
+}
+
+uint32_t srsran_vec_min_fi_simd(const float* x, const int len)
+{
+  int i = 0;
+
+  float    min_value = INFINITY;
+  uint32_t min_index = 0;
+
+#if SRSRAN_SIMD_I_SIZE
+  srsran_simd_aligned int   indexes_buffer[SRSRAN_SIMD_I_SIZE] = {0};
+  srsran_simd_aligned float values_buffer[SRSRAN_SIMD_I_SIZE]  = {0};
+
+  for (int k = 0; k < SRSRAN_SIMD_I_SIZE; k++)
+    indexes_buffer[k] = k;
+  simd_i_t simd_inc         = srsran_simd_i_set1(SRSRAN_SIMD_I_SIZE);
+  simd_i_t simd_indexes     = srsran_simd_i_load(indexes_buffer);
+  simd_i_t simd_min_indexes = srsran_simd_i_set1(0);
+
+  simd_f_t simd_min_values = srsran_simd_f_set1(INFINITY);
+
+  if (SRSRAN_IS_ALIGNED(x)) {
+    for (; i < len - SRSRAN_SIMD_I_SIZE + 1; i += SRSRAN_SIMD_I_SIZE) {
+      simd_f_t   a     = srsran_simd_f_load(&x[i]);
+      simd_sel_t res   = srsran_simd_f_min(a, simd_min_values);
+      simd_min_indexes = srsran_simd_i_select(simd_min_indexes, simd_indexes, res);
+      simd_min_values  = (simd_f_t)srsran_simd_i_select((simd_i_t)simd_min_values, (simd_i_t)a, res);
+      simd_indexes     = srsran_simd_i_add(simd_indexes, simd_inc);
+    }
+  } else {
+    for (; i < len - SRSRAN_SIMD_I_SIZE + 1; i += SRSRAN_SIMD_I_SIZE) {
+      simd_f_t   a     = srsran_simd_f_loadu(&x[i]);
+      simd_sel_t res   = srsran_simd_f_min(a, simd_min_values);
+      simd_min_indexes = srsran_simd_i_select(simd_min_indexes, simd_indexes, res);
+      simd_min_values  = (simd_f_t)srsran_simd_i_select((simd_i_t)simd_min_values, (simd_i_t)a, res);
+      simd_indexes     = srsran_simd_i_add(simd_indexes, simd_inc);
+    }
+  }
+
+  srsran_simd_i_store(indexes_buffer, simd_min_indexes);
+  srsran_simd_f_store(values_buffer, simd_min_values);
+
+  for (int k = 0; k < SRSRAN_SIMD_I_SIZE; k++) {
+    if (values_buffer[k] < min_value) {
+      min_value = values_buffer[k];
+      min_index = (uint32_t)indexes_buffer[k];
+    }
+  }
+#endif /* SRSRAN_SIMD_I_SIZE */
+
+  for (; i < len; i++) {
+    if (x[i] < min_value) {
+      min_value = x[i];
+      min_index = (uint32_t)i;
+    }
+  }
+
+  return min_index;
 }
 
 uint32_t srsran_vec_max_fi_simd(const float* x, const int len)

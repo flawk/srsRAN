@@ -235,6 +235,7 @@ SRSRAN_API float srsran_vec_avg_power_bf(const int8_t* x, const uint32_t len);
 SRSRAN_API float srsran_vec_corr_ccc(const cf_t* x, cf_t* y, const uint32_t len);
 
 /* return the index of the maximum value in the vector */
+SRSRAN_API uint32_t srsran_vec_min_fi(const float* x, const uint32_t len);
 SRSRAN_API uint32_t srsran_vec_max_fi(const float* x, const uint32_t len);
 SRSRAN_API uint32_t srsran_vec_max_abs_fi(const float* x, const uint32_t len);
 SRSRAN_API uint32_t srsran_vec_max_abs_ci(const cf_t* x, const uint32_t len);

@@ -684,6 +684,11 @@ void srsran_vec_abs_square_cf(const cf_t* x, float* abs_square, const uint32_t l
   srsran_vec_abs_square_cf_simd(x, abs_square, len);
 }
 
+uint32_t srsran_vec_min_fi(const float* x, const uint32_t len)
+{
+  return srsran_vec_min_fi_simd(x, len);
+}
+
 uint32_t srsran_vec_max_fi(const float* x, const uint32_t len)
 {
   return srsran_vec_max_fi_simd(x, len);

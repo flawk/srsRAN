@@ -42,6 +42,8 @@ SRSRAN_API void srsran_vec_sub_bbb_simd(const int8_t* x, const int8_t* y, int8_t
 
 SRSRAN_API float srsran_vec_acc_ff_simd(const float* x, int len);
 
+SRSRAN_API float srsran_vec_acc_abs_ff_simd(const float* x, int len);
+
 SRSRAN_API cf_t srsran_vec_acc_cc_simd(const cf_t* x, int len);
 
 SRSRAN_API void srsran_vec_add_fff_simd(const float* x, const float* y, float* z, int len);
@@ -137,6 +139,8 @@ SRSRAN_API void srsran_vec_apply_cfo_simd(const cf_t* x, float cfo, cf_t* z, int
 SRSRAN_API float srsran_vec_estimate_frequency_simd(const cf_t* x, int len);
 
 /* SIMD Find Max functions */
+SRSRAN_API uint32_t srsran_vec_min_fi_simd(const float* x, const int len);
+
 SRSRAN_API uint32_t srsran_vec_max_fi_simd(const float* x, const int len);
 
 SRSRAN_API uint32_t srsran_vec_max_abs_fi_simd(const float* x, const int len);
