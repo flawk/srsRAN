@@ -30,7 +30,7 @@ endif(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
 ########################################################################
 # Project setup
 ########################################################################
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.0.0)
 project( SRSRAN )
 message( STATUS "CMAKE_SYSTEM: " ${CMAKE_SYSTEM} )
 message( STATUS "CMAKE_SYSTEM_PROCESSOR: " ${CMAKE_SYSTEM_PROCESSOR} )
@@ -67,6 +67,7 @@ option(ENABLE_SRSENB         "Build srsENB application"                 ON)
 option(ENABLE_SRSEPC         "Build srsEPC application"                 ON)
 option(DISABLE_SIMD          "Disable SIMD instructions"                OFF)
 option(AUTO_DETECT_ISA       "Autodetect supported ISA extensions"      ON)
+option(ENABLE_C16            "Enable complex 16 API"                    ON)
 
 option(ENABLE_GUI            "Enable GUI (using srsGUI)"                ON)
 option(ENABLE_UHD            "Enable UHD"                               ON)
@@ -88,6 +89,7 @@ option(ENABLE_TSAN           "Enable clang thread sanitizer"            OFF)
 option(ENABLE_TIDY           "Enable clang tidy"                        OFF)
 
 option(USE_LTE_RATES         "Use standard LTE sampling rates"          OFF)
+option(SUPPORT_1536_FFT      "Disable/enable support for 1536 FFTs"     OFF)
 option(USE_MKL               "Use MKL instead of fftw"                  OFF)
 
 option(ENABLE_TIMEPROF       "Enable time profiling"                    ON)
@@ -295,7 +297,7 @@ set(Boost_ADDITIONAL_VERSIONS
     "1.60.0" "1.60" "1.61.0" "1.61" "1.62.0" "1.62" "1.63.0" "1.63" "1.64.0" "1.64"
     "1.65.0" "1.65" "1.66.0" "1.66" "1.67.0" "1.67" "1.68.0" "1.68" "1.69.0" "1.69"
 )
-find_package(Boost "1.35" COMPONENTS ${BOOST_REQUIRED_COMPONENTS})
+find_package(Boost "1.78.0" COMPONENTS ${BOOST_REQUIRED_COMPONENTS})
 
 if(Boost_FOUND)
   include_directories(${Boost_INCLUDE_DIRS})
@@ -382,10 +384,10 @@ macro(ADD_C_COMPILER_FLAG_IF_AVAILABLE flag have)
 endmacro(ADD_C_COMPILER_FLAG_IF_AVAILABLE)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-comment -Wno-reorder -Wno-unused-variable -Wtype-limits -std=c++11 -fno-strict-aliasing")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-comment -Wno-reorder -Wno-unused-variable -Wtype-limits -std=c++20 -fno-strict-aliasing")
 
-  ADD_C_COMPILER_FLAG_IF_AVAILABLE("-Wno-unused-but-set-variable" HAVE_WNO_UNUSED_BUT_SET_VARIABLE)
-  ADD_CXX_COMPILER_FLAG_IF_AVAILABLE("-Wno-unused-but-set-variable" HAVE_WNO_UNUSED_BUT_SET_VARIABLE)
+  set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unknown-pragmas -Wno-unused-but-set-variable")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unknown-pragmas -Wno-unused-but-set-variable")
 
   if (AUTO_DETECT_ISA)
     find_package(SSE)
@@ -400,7 +402,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     if(HAVE_AVX)
       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mfpmath=sse -mavx -DLV_HAVE_AVX -DLV_HAVE_SSE")
     elseif(HAVE_SSE)
-      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mfpmath=sse -msse4.1 -DLV_HAVE_SSE")
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mfpmath=sse -msse4.2 -DLV_HAVE_SSE")
     endif(HAVE_AVX)
   endif (HAVE_AVX2)
 
@@ -446,6 +448,12 @@ if(CMAKE_C_COMPILER_ID MATCHES "GNU" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DFORCE_STANDARD_RATE")
   endif (USE_LTE_RATES)
 
+  if (SUPPORT_1536_FFTS)
+    message(STATUS "Enabling support for 1536 sized FFTs")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DSUPPORT_1536_FFTS")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DSUPPORT_1536_FFTS")
+  endif (USE_LTE_RATES)
+
   if (AUTO_DETECT_ISA)
     find_package(SSE)
   endif (AUTO_DETECT_ISA)
@@ -455,7 +463,7 @@ if(CMAKE_C_COMPILER_ID MATCHES "GNU" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
     if(HAVE_AVX)
       set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mfpmath=sse -mavx -DLV_HAVE_AVX -DLV_HAVE_SSE")
     elseif(HAVE_SSE)
-      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mfpmath=sse -msse4.1 -DLV_HAVE_SSE")
+      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mfpmath=sse -msse4.2 -DLV_HAVE_SSE")
     endif(HAVE_AVX)
   endif (HAVE_AVX2)
 
@@ -530,6 +538,11 @@ if(CMAKE_C_COMPILER_ID MATCHES "GNU" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
   endif (ENABLE_GCOV)
 
 endif(CMAKE_C_COMPILER_ID MATCHES "GNU" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
+
+if(ENABLE_C16)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DENABLE_C16")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DENABLE_C16")
+endif(ENABLE_C16)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
    # The following is needed for weak linking to work under OS X
