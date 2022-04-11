@@ -58,9 +58,9 @@ SRSRAN_API int srsran_conv_fft_cc_replan(srsran_conv_fft_cc_t* q, uint32_t input
 
 SRSRAN_API void srsran_conv_fft_cc_free(srsran_conv_fft_cc_t* q);
 
-SRSRAN_API uint32_t srsran_corr_fft_cc_run(srsran_conv_fft_cc_t* q, cf_t* input, cf_t* filter, cf_t* output);
+SRSRAN_API uint32_t srsran_corr_fft_cc_run(srsran_conv_fft_cc_t* q, const cf_t* input, const cf_t* filter, cf_t* output);
 
-SRSRAN_API uint32_t srsran_corr_fft_cc_run_opt(srsran_conv_fft_cc_t* q, cf_t* input, cf_t* filter, cf_t* output);
+SRSRAN_API uint32_t srsran_corr_fft_cc_run_opt(srsran_conv_fft_cc_t* q, const cf_t* input, const cf_t* filter, cf_t* output);
 
 SRSRAN_API uint32_t srsran_conv_fft_cc_run(srsran_conv_fft_cc_t* q,
                                            const cf_t*           input,
@@ -76,9 +76,9 @@ SRSRAN_API uint32_t
 srsran_conv_cc(const cf_t* input, const cf_t* filter, cf_t* output, uint32_t input_len, uint32_t filter_len);
 
 SRSRAN_API uint32_t
-srsran_conv_same_cf(cf_t* input, float* filter, cf_t* output, uint32_t input_len, uint32_t filter_len);
+srsran_conv_same_cf(const cf_t* input, const float* filter, cf_t* output, uint32_t input_len, uint32_t filter_len);
 
 SRSRAN_API uint32_t
-srsran_conv_same_cc(cf_t* input, cf_t* filter, cf_t* output, uint32_t input_len, uint32_t filter_len);
+srsran_conv_same_cc(const cf_t* input, const cf_t* filter, cf_t* output, uint32_t input_len, uint32_t filter_len);
 
 #endif // SRSRAN_CONVOLUTION_H

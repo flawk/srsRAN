@@ -97,7 +97,7 @@ void srsran_filt_decim_cc_free(srsran_filt_cc_t* q)
   free(q->taps);
 }
 
-void srsran_filt_decim_cc_execute(srsran_filt_cc_t* q, cf_t* input, cf_t* downsampled_input, cf_t* output, int size)
+void srsran_filt_decim_cc_execute(srsran_filt_cc_t* q, const cf_t* input, cf_t* downsampled_input, cf_t* output, int size)
 {
   // we assume that "downsampled_input" made size (input/2 + order) so as to have prepended zeros //
   srsran_downsample_cc(input, downsampled_input + (q->num_taps - 1), q->factor, size);
@@ -108,7 +108,7 @@ void srsran_filt_decim_cc_execute(srsran_filt_cc_t* q, cf_t* input, cf_t* downsa
 }
 
 /* Performs integer linear downsamling by a factor of M */
-void srsran_downsample_cc(cf_t* input, cf_t* output, int M, int size)
+void srsran_downsample_cc(const cf_t* input, cf_t* output, int M, int size)
 {
   int i;
   for (i = 0; i < size / M; i++) {

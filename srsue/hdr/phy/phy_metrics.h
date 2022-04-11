@@ -23,6 +23,7 @@
 #define SRSUE_PHY_METRICS_H
 
 #include "srsran/srsran.h"
+#include "srsran/common/common.h"
 #include <array>
 
 namespace srsue {
@@ -89,7 +90,7 @@ struct ch_metrics_t {
     count++;
     PHY_METRICS_SET(n);
     // We exclude inf and nan from the average SINR
-    if (!std::isnan(other.sinr) || !std::isinf(other.sinr)) {
+    if (!srsran::isnan(other.sinr) || !srsran::isinf(other.sinr)) {
       PHY_METRICS_SET(sinr);
     }
     PHY_METRICS_SET(rsrp);

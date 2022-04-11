@@ -50,7 +50,7 @@ void srsran_filt_decim_cc_init(srsran_filt_cc_t* q, int factor, int order);
 
 void srsran_filt_decim_cc_free(srsran_filt_cc_t* q);
 
-void srsran_filt_decim_cc_execute(srsran_filt_cc_t* q, cf_t* input, cf_t* downsampled_input, cf_t* output, int size);
+void srsran_filt_decim_cc_execute(srsran_filt_cc_t* q, const cf_t* input, cf_t* downsampled_input, cf_t* output, int size);
 
-void srsran_downsample_cc(cf_t* input, cf_t* output, int M, int size);
+void srsran_downsample_cc(const cf_t* input, cf_t* output, int M, int size);
 #endif // SRSRAN_FILTER_H

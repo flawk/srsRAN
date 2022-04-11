@@ -377,7 +377,7 @@ typedef struct SRSRAN_API {
 
 ///< PHY common function declarations
 
-SRSRAN_API bool srsran_cell_isvalid(srsran_cell_t* cell);
+SRSRAN_API bool srsran_cell_isvalid(const srsran_cell_t* cell);
 
 SRSRAN_API void srsran_cell_fprint(FILE* stream, srsran_cell_t* cell, uint32_t sfn);
 

@@ -126,7 +126,7 @@ uint32_t srsran_conv_fft_cc_run(srsran_conv_fft_cc_t* q, const cf_t* input, cons
   return srsran_conv_fft_cc_run_opt(q, input, q->filter_fft, output);
 }
 
-uint32_t srsran_corr_fft_cc_run_opt(srsran_conv_fft_cc_t* q, cf_t* input, cf_t* filter, cf_t* output)
+uint32_t srsran_corr_fft_cc_run_opt(srsran_conv_fft_cc_t* q, const cf_t* input, const cf_t* filter, cf_t* output)
 {
   srsran_dft_run_c(&q->input_plan, input, q->input_fft);
   srsran_vec_prod_conj_ccc(q->input_fft, q->filter_fft, q->output_fft, q->output_len);
@@ -134,12 +134,15 @@ uint32_t srsran_corr_fft_cc_run_opt(srsran_conv_fft_cc_t* q, cf_t* input, cf_t* 
   return (q->output_len - 1);
 }
 
-uint32_t srsran_corr_fft_cc_run(srsran_conv_fft_cc_t* q, cf_t* input, cf_t* filter, cf_t* output)
+uint32_t srsran_corr_fft_cc_run(srsran_conv_fft_cc_t* q, const cf_t* input, const cf_t* filter, cf_t* output)
 {
   srsran_dft_run_c(&q->filter_plan, filter, q->filter_fft);
   return srsran_corr_fft_cc_run_opt(q, input, q->filter_fft, output);
 }
 
+/**
+ * TODO: this will overrun the buffer, so make sure you have extra space + zeros!
+ */
 uint32_t srsran_conv_cc(const cf_t* input, const cf_t* filter, cf_t* output, uint32_t input_len, uint32_t filter_len)
 {
   uint32_t i;
@@ -158,7 +161,7 @@ uint32_t srsran_conv_cc(const cf_t* input, const cf_t* filter, cf_t* output, uin
 /* Centered convolution. Returns the same number of input elements. Equivalent to conv(x,h,'same') in matlab.
  * y(n)=sum_i x(n+i-M/2)*h(i) for n=1..N with N input samples and M filter len
  */
-uint32_t srsran_conv_same_cc(cf_t* input, cf_t* filter, cf_t* output, uint32_t input_len, uint32_t filter_len)
+uint32_t srsran_conv_same_cc(const cf_t* input, const cf_t* filter, cf_t* output, uint32_t input_len, uint32_t filter_len)
 {
   uint32_t i;
   uint32_t M = filter_len;
@@ -179,7 +182,7 @@ uint32_t srsran_conv_same_cc(cf_t* input, cf_t* filter, cf_t* output, uint32_t i
 #define conv_same_extrapolates_extremes
 
 #ifdef conv_same_extrapolates_extremes
-uint32_t srsran_conv_same_cf(cf_t* input, float* filter, cf_t* output, uint32_t input_len, uint32_t filter_len)
+uint32_t srsran_conv_same_cf(const cf_t* input, const float* filter, cf_t* output, uint32_t input_len, uint32_t filter_len)
 {
   uint32_t i;
   uint32_t M = filter_len;
