@@ -91,7 +91,7 @@ static uint32_t max_128i(__m128i x)
 
 #ifndef use_beta_transposed_max
 
-/* Computes the horizontal MAX from 8 16-bit integers using the minpos_epu16 SSE4.1 instruction */
+/* Computes the horizontal MAX from 8 16-bit integers using the minpos_epu16 SSE4.2 instruction */
 static inline int16_t hMax(__m128i buffer)
 {
   __m128i tmp1 = _mm_sub_epi16(_mm_set1_epi16(0x7FFF), buffer);
