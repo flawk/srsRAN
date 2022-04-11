@@ -28661,11 +28661,10 @@ crit_e mdt_cfg_ext_ies_o::get_crit(const uint32_t& id)
 }
 mdt_cfg_ext_ies_o::ext_c mdt_cfg_ext_ies_o::get_ext(const uint32_t& id)
 {
-  ext_c ret{};
   if (id != 178) {
     asn1::log_error("The id=%d is not recognized", id);
   }
-  return ret;
+  return {};
 }
 presence_e mdt_cfg_ext_ies_o::get_presence(const uint32_t& id)
 {
