@@ -244,4 +244,6 @@ SRSRAN_API int srsran_ue_dl_find_and_decode(srsran_ue_dl_t*     q,
 
 SRSRAN_API void srsran_ue_dl_save_signal(srsran_ue_dl_t* q, srsran_dl_sf_cfg_t* sf, srsran_pdsch_cfg_t* pdsch_cfg);
 
+SRSRAN_API void set_mi_value(srsran_ue_dl_t* q, srsran_dl_sf_cfg_t* sf, srsran_ue_dl_cfg_t* cfg);
+
 #endif // SRSRAN_UE_DL_H

@@ -293,7 +293,7 @@ int srsran_ue_dl_set_mbsfn_area_id(srsran_ue_dl_t* q, uint16_t mbsfn_area_id)
   return ret;
 }
 
-static void set_mi_value(srsran_ue_dl_t* q, srsran_dl_sf_cfg_t* sf, srsran_ue_dl_cfg_t* cfg)
+void set_mi_value(srsran_ue_dl_t* q, srsran_dl_sf_cfg_t* sf, srsran_ue_dl_cfg_t* cfg)
 {
   uint32_t sf_idx = sf->tti % 10;
   // Set mi value in pdcch region
