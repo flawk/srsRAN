@@ -69,7 +69,7 @@ public:
   cached_alloc& operator=(const cached_alloc<T>& other) noexcept { return *this; }
   cached_alloc& operator=(cached_alloc&& other) noexcept = default;
 
-  T* allocate(size_t n, const void* ptr = nullptr)
+  T* allocate(size_t n)
   {
     size_t req_n = std::max(n, min_n);
     for (memblock_t& b : free_list) {
@@ -79,7 +79,7 @@ public:
         return reinterpret_cast<T*>(&b);
       }
     }
-    return std::allocator<T>::allocate(req_n, ptr);
+    return std::allocator<T>::allocate(req_n);
   }
   void deallocate(T* p, size_t n) noexcept
   {
