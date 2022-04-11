@@ -48,7 +48,7 @@ static void srsran_signal_handler(int signal)
       } else {
         return;
       }
-      fprintf(stdout, "Stopping ..\n");
+      fprintf(stdout, "\nStopping ..\n");
       alarm(SRSRAN_TERM_TIMEOUT_S);
       break;
   }
