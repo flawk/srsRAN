@@ -55,7 +55,7 @@ bool srsran_nofprb_isvalid(uint32_t nof_prb)
   }
 }
 
-bool srsran_cell_isvalid(srsran_cell_t* cell)
+bool srsran_cell_isvalid(const srsran_cell_t* cell)
 {
   return srsran_cellid_isvalid(cell->id) && srsran_portid_isvalid(cell->nof_ports) &&
          srsran_nofprb_isvalid(cell->nof_prb);
@@ -350,7 +350,11 @@ int srsran_symbol_sz_power2(uint32_t nof_prb)
   } else if (nof_prb <= 50) {
     return 1024;
   } else if (nof_prb <= 75) {
+#ifndef SUPPORT_1536_FFTS
+    return 2048;
+#else
     return 1536;
+#endif
   } else if (nof_prb <= 110) {
     return 2048;
   } else {
@@ -384,7 +388,10 @@ int srsran_symbol_sz(uint32_t nof_prb)
   }
 }
 
-int srsran_nof_prb(uint32_t symbol_sz)
+/**
+ * Can return incorrect results if 1536 sized FFTs are not supported (duplicate case)
+ */
+/*int srsran_nof_prb(uint32_t symbol_sz)
 {
   if (!use_standard_rates) {
     switch (symbol_sz) {
@@ -418,7 +425,7 @@ int srsran_nof_prb(uint32_t symbol_sz)
     }
   }
   return SRSRAN_ERROR;
-}
+}*/
 
 bool srsran_symbol_sz_isvalid(uint32_t symbol_sz)
 {
@@ -430,7 +437,10 @@ bool srsran_symbol_sz_isvalid(uint32_t symbol_sz)
       return false;
     }
   } else {
-    if (symbol_sz == 128 || symbol_sz == 256 || symbol_sz == 512 || symbol_sz == 1024 || symbol_sz == 1536 ||
+    if (symbol_sz == 128 || symbol_sz == 256 || symbol_sz == 512 || symbol_sz == 1024 ||
+#ifdef SUPPORT_1536_FFTS
+        symbol_sz == 1536 ||
+#endif
         symbol_sz == 2048) {
       return true;
     } else {
