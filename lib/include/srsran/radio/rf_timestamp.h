@@ -24,6 +24,9 @@
 
 #include "srsran/interfaces/radio_interfaces.h"
 
+#include <sstream>
+#include <iomanip>
+
 namespace srsran {
 
 /**
@@ -50,6 +53,27 @@ public:
    * Default destructor
    */
   ~rf_timestamp_t() = default;
+
+  /**
+   * Assignment operator
+   */
+  rf_timestamp_t& operator=(const rf_timestamp_t& other)
+  {
+    if (this != &other) {
+      copy(other);
+    }
+    return *this;
+  }
+
+  /**
+   * Move constructor
+   */
+  rf_timestamp_t(rf_timestamp_t&&) = delete;
+
+  /**
+   * Move assignment operator
+   */
+  rf_timestamp_t& operator=(rf_timestamp_t&&) = delete;
 
   /**
    * Gets a timestamp by reference
@@ -97,6 +121,34 @@ public:
       srsran_timestamp_sub(&ts, 0, secs);
     }
   }
+
+  // flawk - begin
+
+  [[nodiscard]] static srsran_timestamp_t fix(const srsran_timestamp_t& ts)
+  {
+    const int64_t _full     = int64_t(ts.full_secs);
+    const double  _frac     = double(ts.frac_secs);
+    const int     _frac_int = int(_frac);
+    int64_t       full_secs = _full + _frac_int;
+    double        frac_secs = _frac - _frac_int;
+    if (frac_secs < 0) {
+      full_secs -= 1;
+      frac_secs += 1;
+    }
+    return {(time_t)full_secs, frac_secs};
+  }
+
+  [[nodiscard]] static std::string tostring(const srsran_timestamp_t& ts)
+  {
+    std::stringstream frac;
+    frac << std::fixed << std::setprecision(17) << std::abs(ts.frac_secs);
+    std::stringstream res;
+    res << (int64_t)ts.full_secs;
+    res << frac.str().erase(0, 1);
+    return res.str();
+  }
+
+  // flawk - end
 
 private:
   const srsran_timestamp_t                            default_ts = {};
