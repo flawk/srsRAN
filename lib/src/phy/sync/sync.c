@@ -109,10 +109,10 @@ int srsran_sync_init_decim(srsran_sync_t* q, uint32_t frame_size, uint32_t max_o
     }
 
     srsran_sync_set_cp(q, SRSRAN_CP_NORM);
-    q->decimate = decimate;
     if (!decimate) {
       decimate = 1;
     }
+    q->decimate = decimate;
 
     if (srsran_dft_plan(&q->idftp_sss, fft_size, SRSRAN_DFT_BACKWARD, SRSRAN_DFT_COMPLEX)) {
       ERROR("Error creating DFT plan ");
@@ -702,7 +702,7 @@ srsran_sync_find(srsran_sync_t* q, const cf_t* input, uint32_t find_offset, uint
     }
 
     // In case of decimation, this compensates for the constant time shift caused by the low pass filter
-    if (q->decimate && peak_pos < 0) {
+    if (q->decimate > 1 && peak_pos < 0) {
       peak_pos = 0; // peak_pos + q->decimate*(2);// replace 2 with q->filter_size -2;
     }
 

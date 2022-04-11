@@ -196,7 +196,7 @@ int srsran_ue_sync_init_multi_decim(
     int      decimate)
 {
   return srsran_ue_sync_init_multi_decim_mode(
-      q, max_prb, search_cell, recv_callback, nof_rx_antennas, stream_handler, 1, SYNC_MODE_PSS);
+      q, max_prb, search_cell, recv_callback, nof_rx_antennas, stream_handler, decimate, SYNC_MODE_PSS);
 }
 
 int srsran_ue_sync_init_multi_decim_mode(
@@ -252,7 +252,7 @@ int srsran_ue_sync_init_multi_decim_mode(
 
     q->frame_len = q->nof_recv_sf * q->sf_len;
 
-    if (q->fft_size < 700 && q->decimate) {
+    if (q->fft_size < 700 && q->decimate > 1) {
       q->decimate = 1;
     }
 
@@ -353,7 +353,7 @@ int srsran_ue_sync_set_cell(srsran_ue_sync_t* q, srsran_cell_t cell)
 
     if (q->mode == SYNC_MODE_PSS) {
       // cell configuration for PSS-based sync
-      if (q->fft_size < 700 && q->decimate) {
+      if (q->fft_size < 700 && q->decimate > 1) {
         q->decimate = 1;
       }
 
