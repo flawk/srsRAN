@@ -21,7 +21,12 @@
 
 #include "srsenb/hdr/stack/mac/sched_phy_ch/sf_cch_allocator.h"
 #include "srsenb/hdr/stack/mac/sched_grid.h"
+#ifndef SRSRAN_EXTERNAL_FMT
 #include "srsran/srslog/bundled/fmt/format.h"
+#else
+#include <fmt/format.h>
+#include <fmt/args.h>
+#endif
 
 namespace srsenb {
 

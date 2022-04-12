@@ -22,7 +22,12 @@
 #ifndef SRSRAN_STRING_HELPERS_H
 #define SRSRAN_STRING_HELPERS_H
 
+#ifndef SRSRAN_EXTERNAL_FMT
 #include "srsran/srslog/bundled/fmt/format.h"
+#else
+#include <fmt/format.h>
+#include <fmt/args.h>
+#endif
 #include <algorithm>
 #include <fstream>
 #include <iomanip>

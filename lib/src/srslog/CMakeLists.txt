@@ -24,13 +24,15 @@ set(SOURCES
     srslog_c.cpp
     event_trace.cpp)
 
-include_directories(${PROJECT_SOURCE_DIR}/lib/include/srsran/srslog/bundled/)
 include_directories(${PROJECT_SOURCE_DIR}/lib/include/srsran/srslog/formatters)
 
-set(SOURCES
-    ${SOURCES}
-    ${CMAKE_CURRENT_SOURCE_DIR}/bundled/fmt/format.cc
-    ${CMAKE_CURRENT_SOURCE_DIR}/bundled/fmt/os.cc)
+if(NOT ENABLE_EXTERNAL_FMT)
+  include_directories(${PROJECT_SOURCE_DIR}/lib/include/srsran/srslog/bundled/)
+  set(SOURCES
+      ${SOURCES}
+      ${CMAKE_CURRENT_SOURCE_DIR}/bundled/fmt/format.cc
+      ${CMAKE_CURRENT_SOURCE_DIR}/bundled/fmt/os.cc)
+endif(NOT ENABLE_EXTERNAL_FMT)
 
 set(SOURCES
     ${SOURCES}
@@ -42,4 +44,7 @@ find_package(Threads REQUIRED)
 
 add_library(srslog STATIC ${SOURCES})
 target_link_libraries(srslog ${CMAKE_THREAD_LIBS_INIT})
+if(NOT ENABLE_EXTERNAL_FMT)
+  target_link_libraries(srslog PUBLIC fmt::fmt)
+endif(NOT ENABLE_EXTERNAL_FMT)
 INSTALL(TARGETS srslog DESTINATION ${LIBRARY_DIR})

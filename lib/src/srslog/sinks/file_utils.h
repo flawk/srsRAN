@@ -22,7 +22,12 @@
 #ifndef SRSLOG_FILE_UTILS_H
 #define SRSLOG_FILE_UTILS_H
 
+#ifndef SRSRAN_EXTERNAL_FMT
 #include "srsran/srslog/bundled/fmt/format.h"
+#else
+#include <fmt/format.h>
+#include <fmt/args.h>
+#endif
 #include "srsran/srslog/detail/support/error_string.h"
 #include "srsran/srslog/detail/support/memory_buffer.h"
 
@@ -34,7 +39,7 @@ namespace file_utils {
 inline std::string format_error(const std::string& error, int error_code)
 {
   fmt::memory_buffer result;
-  fmt::format_system_error(result, error_code, error);
+  fmt::format_system_error(result, error_code, error.c_str());
 
   return fmt::to_string(result);
 }

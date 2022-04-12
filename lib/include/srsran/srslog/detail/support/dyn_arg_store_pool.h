@@ -22,7 +22,12 @@
 #ifndef SRSLOG_DETAIL_SUPPORT_DYN_ARG_STORE_POOL_H
 #define SRSLOG_DETAIL_SUPPORT_DYN_ARG_STORE_POOL_H
 
+#ifndef SRSRAN_EXTERNAL_FMT
 #include "srsran/srslog/bundled/fmt/printf.h"
+#else
+#include <fmt/printf.h>
+#include <fmt/args.h>
+#endif
 #include "srsran/srslog/detail/support/backend_capacity.h"
 
 namespace srslog {

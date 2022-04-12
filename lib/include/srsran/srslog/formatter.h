@@ -22,7 +22,12 @@
 #ifndef SRSLOG_FORMATTER_H
 #define SRSLOG_FORMATTER_H
 
+#ifndef SRSRAN_EXTERNAL_FMT
 #include "srsran/srslog/bundled/fmt/format.h"
+#else
+#include <fmt/format.h>
+#include <fmt/args.h>
+#endif
 #include "srsran/srslog/context.h"
 
 namespace srslog {

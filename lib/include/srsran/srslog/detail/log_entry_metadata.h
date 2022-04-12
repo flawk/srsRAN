@@ -22,7 +22,12 @@
 #ifndef SRSLOG_DETAIL_LOG_ENTRY_METADATA_H
 #define SRSLOG_DETAIL_LOG_ENTRY_METADATA_H
 
+#ifndef SRSRAN_EXTERNAL_FMT
 #include "srsran/srslog/bundled/fmt/printf.h"
+#else
+#include <fmt/printf.h>
+#include <fmt/args.h>
+#endif
 #include <chrono>
 
 namespace srslog {

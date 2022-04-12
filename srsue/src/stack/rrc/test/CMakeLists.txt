@@ -19,7 +19,7 @@
 #
 
 add_executable(rrc_reconfig_test rrc_reconfig_test.cc)
-target_link_libraries(rrc_reconfig_test srsue_upper srsran_phy srsran_asn1 rrc_asn1 srslog)
+target_link_libraries(rrc_reconfig_test srsue_upper srsran_phy srsran_asn1 rrc_asn1 srslog fmt::fmt)
 add_test(rrc_reconfig_test rrc_reconfig_test)
 
 add_executable(rrc_meas_test rrc_meas_test.cc)

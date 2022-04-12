@@ -22,8 +22,14 @@
 #include "srsenb/hdr/stack/mac/common/ue_buffer_manager.h"
 #include "srsran/adt/bounded_vector.h"
 #include "srsran/common/string_helpers.h"
+#ifndef SRSRAN_EXTERNAL_FMT
 #include "srsran/srslog/bundled/fmt/format.h"
 #include "srsran/srslog/bundled/fmt/ranges.h"
+#else
+#include <fmt/format.h>
+#include <fmt/ranges.h>
+#include <fmt/args.h>
+#endif
 
 namespace srsenb {
 

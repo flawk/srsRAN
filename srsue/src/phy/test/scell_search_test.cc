@@ -20,7 +20,12 @@
  */
 
 #include "srsran/interfaces/phy_interface_types.h"
+#ifndef SRSRAN_EXTERNAL_FMT
 #include "srsran/srslog/bundled/fmt/chrono.h"
+#else
+#include <fmt/chrono.h>
+#include <fmt/args.h>
+#endif
 #include "srsran/srslog/srslog.h"
 #include "srsue/hdr/phy/scell/intra_measure_lte.h"
 #include <boost/program_options.hpp>

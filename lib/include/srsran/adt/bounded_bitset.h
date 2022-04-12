@@ -22,7 +22,14 @@
 #ifndef SRSRAN_DYN_BITSET_H
 #define SRSRAN_DYN_BITSET_H
 
+#ifndef SRSRAN_EXTERNAL_FMT
 #include "srsran/srslog/bundled/fmt/format.h"
+#else
+#include <fmt/core.h>
+#include <fmt/args.h>
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+#endif
 #include "srsran/support/srsran_assert.h"
 #include <cstdint>
 #include <inttypes.h>
@@ -572,14 +579,13 @@ inline bounded_bitset<N, reversed> fliplr(const bounded_bitset<N, reversed>& oth
 
 } // namespace srsran
 
-namespace fmt {
 /// Custom formatter for bounded_bitset<N, reversed>
 template <size_t N, bool reversed>
-struct formatter<srsran::bounded_bitset<N, reversed> > {
+struct fmt::formatter<srsran::bounded_bitset<N, reversed> > {
   enum { hexadecimal, binary } mode = binary;
 
   template <typename ParseContext>
-  auto parse(ParseContext& ctx) -> decltype(ctx.begin())
+  constexpr auto parse(ParseContext& ctx) -> decltype(ctx.begin())
   {
     auto it = ctx.begin();
     while (it != ctx.end() and *it != '}') {
@@ -594,7 +600,7 @@ struct formatter<srsran::bounded_bitset<N, reversed> > {
 
   template <typename FormatContext>
   auto format(const srsran::bounded_bitset<N, reversed>& s, FormatContext& ctx)
-      -> decltype(std::declval<FormatContext>().out())
+      -> decltype(ctx.out())
   {
     if (mode == hexadecimal) {
       return s.template to_hex(ctx.out());
@@ -602,6 +608,5 @@ struct formatter<srsran::bounded_bitset<N, reversed> > {
     return s.template to_string(ctx.out());
   }
 };
-} // namespace fmt
 
 #endif // SRSRAN_DYN_BITSET_H

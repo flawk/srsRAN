@@ -36,6 +36,20 @@ message( STATUS "CMAKE_SYSTEM: " ${CMAKE_SYSTEM} )
 message( STATUS "CMAKE_SYSTEM_PROCESSOR: " ${CMAKE_SYSTEM_PROCESSOR} )
 message( STATUS "CMAKE_CXX_COMPILER: " ${CMAKE_CXX_COMPILER} )
 
+### Standards
+set(CMAKE_C_STANDARD_REQUIRED   ON CACHE BOOL "")
+set(CMAKE_C_STANDARD            99 CACHE STRING "")
+
+set(CMAKE_CXX_STANDARD_REQUIRED ON CACHE BOOL "")
+set(CMAKE_CXX_STANDARD          11 CACHE STRING "")
+
+### https://cmake.org/cmake/help/latest/prop_tgt/CXX_EXTENSIONS.html#prop_tgt:CXX_EXTENSIONS
+# Let's ensure -std=cxx instead of -std=gxx
+set(C_EXTENSIONS         OFF CACHE INTERNAL "")
+set(CXX_EXTENSIONS       OFF CACHE INTERNAL "")
+set(CMAKE_C_EXTENSIONS   OFF CACHE INTERNAL "")
+set(CMAKE_CXX_EXTENSIONS OFF CACHE INTERNAL "")
+
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake/modules")
 include(SRSRANVersion) #sets version information
 include(SRSRANPackage) #setup cpack
@@ -76,6 +90,7 @@ option(ENABLE_SOAPYSDR       "Enable SoapySDR"                          ON)
 option(ENABLE_SKIQ           "Enable Sidekiq SDK"                       ON)
 option(ENABLE_ZEROMQ         "Enable ZeroMQ"                            ON)
 option(ENABLE_HARDSIM        "Enable support for SIM cards"             ON)
+option(ENABLE_EXTERNAL_FMT   "Enable external fmt"                      OFF)
 
 option(ENABLE_TTCN3          "Enable TTCN3 test binaries"               OFF)
 option(ENABLE_ZMQ_TEST       "Enable ZMQ based E2E tests"               OFF)
@@ -90,7 +105,7 @@ option(ENABLE_TIDY           "Enable clang tidy"                        OFF)
 option(ENABLE_CCACHE         "Enable Ccache"                             ON)
 
 option(USE_LTE_RATES         "Use standard LTE sampling rates"          OFF)
-option(SUPPORT_1536_FFT      "Disable/enable support for 1536 FFTs"      ON)
+option(DISABLE_FFT_1536      "Disable/enable support for 1536 FFTs"     OFF)
 option(USE_MKL               "Use MKL instead of fftw"                  OFF)
 
 option(ENABLE_TIMEPROF       "Enable time profiling"                    ON)
@@ -280,6 +295,11 @@ else(BLADERF_FOUND OR UHD_FOUND OR SOAPYSDR_FOUND OR ZEROMQ_FOUND OR SKIQ_FOUND)
   add_definitions(-DDISABLE_RF)
 endif(BLADERF_FOUND OR UHD_FOUND OR SOAPYSDR_FOUND OR ZEROMQ_FOUND OR SKIQ_FOUND)
 
+# fmt
+if(ENABLE_EXTERNAL_FMT)
+  find_package(fmt CONFIG REQUIRED)
+endif(ENABLE_EXTERNAL_FMT)
+
 # Boost
 if(BUILD_STATIC)
   set(Boost_USE_STATIC_LIBS ON)
@@ -387,7 +407,7 @@ macro(ADD_C_COMPILER_FLAG_IF_AVAILABLE flag have)
 endmacro(ADD_C_COMPILER_FLAG_IF_AVAILABLE)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-comment -Wno-reorder -Wno-unused-variable -Wtype-limits -std=c++20 -fno-strict-aliasing")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-comment -Wno-reorder -Wno-unused-variable -Wtype-limits -fno-strict-aliasing")
 
   ADD_C_COMPILER_FLAG_IF_AVAILABLE("-Wno-unused-but-set-variable" HAVE_WNO_UNUSED_BUT_SET_VARIABLE)
   ADD_CXX_COMPILER_FLAG_IF_AVAILABLE("-Wno-unused-but-set-variable" HAVE_WNO_UNUSED_BUT_SET_VARIABLE)
@@ -427,7 +447,7 @@ endif(CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clan
 ADD_C_COMPILER_FLAG_IF_AVAILABLE("-Werror=incompatible-pointer-types" HAVE_ERROR_INCOMPATIBLE)
 
 if(CMAKE_C_COMPILER_ID MATCHES "GNU" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wno-comment -Wno-write-strings -Wno-unused-result -Wformat -Wmissing-field-initializers -Wtype-limits -std=c17 -fno-strict-aliasing -D_GNU_SOURCE")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Wno-comment -Wno-write-strings -Wno-unused-result -Wformat -Wmissing-field-initializers -Wtype-limits -fno-strict-aliasing -D_GNU_SOURCE")
 
   if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ggdb -O0 -DDEBUG_MODE -DBUILD_TYPE_DEBUG")
@@ -451,11 +471,11 @@ if(CMAKE_C_COMPILER_ID MATCHES "GNU" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DFORCE_STANDARD_RATE")
   endif (USE_LTE_RATES)
 
-  if (SUPPORT_1536_FFTS)
-    message(STATUS "Enabling support for 1536 sized FFTs")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DSUPPORT_1536_FFTS")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DSUPPORT_1536_FFTS")
-  endif (SUPPORT_1536_FFTS)
+  if (DISABLE_FFT_1536)
+    message(STATUS "Disabling support for 1536 sized FFTs")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DSRSRAN_DISABLE_FFT_1536")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DSRSRAN_DISABLE_FFT_1536")
+  endif (DISABLE_FFT_1536)
 
   if (AUTO_DETECT_ISA)
     find_package(SSE)
@@ -543,9 +563,16 @@ if(CMAKE_C_COMPILER_ID MATCHES "GNU" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
 endif(CMAKE_C_COMPILER_ID MATCHES "GNU" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
 
 if(ENABLE_C16)
+  message(STATUS "Enabling complex<int16_t> support")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DENABLE_C16")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DENABLE_C16")
 endif(ENABLE_C16)
+
+if(ENABLE_EXTERNAL_FMT)
+  message(STATUS "Enabling external fmt")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DSRSRAN_EXTERNAL_FMT")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DSRSRAN_EXTERNAL_FMT")
+endif(ENABLE_EXTERNAL_FMT)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
    # The following is needed for weak linking to work under OS X

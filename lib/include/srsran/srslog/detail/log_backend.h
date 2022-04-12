@@ -22,7 +22,12 @@
 #ifndef SRSLOG_DETAIL_LOG_BACKEND_H
 #define SRSLOG_DETAIL_LOG_BACKEND_H
 
+#ifndef SRSRAN_EXTERNAL_FMT
 #include "srsran/srslog/bundled/fmt/printf.h"
+#else
+#include <fmt/printf.h>
+#include <fmt/args.h>
+#endif
 #include "srsran/srslog/shared_types.h"
 
 namespace srslog {

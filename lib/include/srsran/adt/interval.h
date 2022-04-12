@@ -22,7 +22,12 @@
 #ifndef SRSRAN_INTERVAL_H
 #define SRSRAN_INTERVAL_H
 
+#ifndef SRSRAN_EXTERNAL_FMT
 #include "srsran/srslog/bundled/fmt/format.h"
+#else
+#include <fmt/format.h>
+#include <fmt/args.h>
+#endif
 #include "srsran/support/srsran_assert.h"
 #include <cassert>
 #include <string>

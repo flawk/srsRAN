@@ -46,7 +46,7 @@ void json_formatter::format(detail::log_entry_metadata&& metadata, fmt::memory_b
         std::abort();
 #endif
       }
-      fmt::format_to(buffer, fmt::to_string_view("\""));
+      fmt::format_to(buffer, "\"");
     } else {
       fmt::format_to(buffer, "{}\"", metadata.fmtstring);
     }

@@ -23,7 +23,12 @@
 #include "srsran/common/standard_streams.h"
 #include "srsran/common/string_helpers.h"
 #include "srsran/mac/pdu.h"
+#ifndef SRSRAN_EXTERNAL_FMT
 #include "srsran/srslog/bundled/fmt/format.h"
+#else
+#include <fmt/format.h>
+#include <fmt/args.h>
+#endif
 #include <array>
 
 #define Debug(fmt, ...) get_mac_logger().debug(fmt, ##__VA_ARGS__)

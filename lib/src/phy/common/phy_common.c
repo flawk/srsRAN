@@ -350,10 +350,10 @@ int srsran_symbol_sz_power2(uint32_t nof_prb)
   } else if (nof_prb <= 50) {
     return 1024;
   } else if (nof_prb <= 75) {
-#ifndef SUPPORT_1536_FFTS
-    return 2048;
-#else
+#ifndef SRSRAN_DISABLE_FFT_1536
     return 1536;
+#else
+    return 2048;
 #endif
   } else if (nof_prb <= 110) {
     return 2048;
@@ -438,7 +438,7 @@ bool srsran_symbol_sz_isvalid(uint32_t symbol_sz)
     }
   } else {
     if (symbol_sz == 128 || symbol_sz == 256 || symbol_sz == 512 || symbol_sz == 1024 ||
-#ifdef SUPPORT_1536_FFTS
+#ifndef SRSRAN_DISABLE_FFT_1536
         symbol_sz == 1536 ||
 #endif
         symbol_sz == 2048) {

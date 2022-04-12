@@ -20,7 +20,12 @@
  */
 
 #include "text_formatter.h"
+#ifndef SRSRAN_EXTERNAL_FMT
 #include "srsran/srslog/bundled/fmt/chrono.h"
+#else
+#include <fmt/chrono.h>
+#include <fmt/args.h>
+#endif
 #include "srsran/srslog/detail/log_entry_metadata.h"
 
 using namespace srslog;

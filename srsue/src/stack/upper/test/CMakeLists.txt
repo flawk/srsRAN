@@ -19,12 +19,12 @@
 #
 
 add_executable(usim_test usim_test.cc)
-target_link_libraries(usim_test srsue_upper srsran_phy rrc_asn1 srslog)
+target_link_libraries(usim_test srsue_upper srsran_phy rrc_asn1 srslog fmt::fmt)
 add_test(usim_test usim_test)
 
 if(HAVE_PCSC)
   add_executable(pcsc_usim_test pcsc_usim_test.cc)
-  target_link_libraries(pcsc_usim_test srsue_upper srsran_phy srsran_common srslog)
+  target_link_libraries(pcsc_usim_test srsue_upper srsran_phy srsran_common srslog fmt::fmt)
 endif(HAVE_PCSC)
 
 add_executable(nas_test nas_test.cc)

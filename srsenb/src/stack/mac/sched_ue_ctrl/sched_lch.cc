@@ -22,7 +22,12 @@
 #include "srsenb/hdr/stack/mac/sched_ue_ctrl/sched_lch.h"
 #include "srsenb/hdr/stack/mac/sched_helpers.h"
 #include "srsran/common/string_helpers.h"
+#ifndef SRSRAN_EXTERNAL_FMT
 #include "srsran/srslog/bundled/fmt/ranges.h"
+#else
+#include <fmt/ranges.h>
+#include <fmt/args.h>
+#endif
 
 namespace srsenb {
 
