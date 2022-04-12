@@ -90,7 +90,7 @@ option(ENABLE_TIDY           "Enable clang tidy"                        OFF)
 option(ENABLE_CCACHE         "Enable Ccache"                             ON)
 
 option(USE_LTE_RATES         "Use standard LTE sampling rates"          OFF)
-option(SUPPORT_1536_FFT      "Disable/enable support for 1536 FFTs"     OFF)
+option(SUPPORT_1536_FFT      "Disable/enable support for 1536 FFTs"      ON)
 option(USE_MKL               "Use MKL instead of fftw"                  OFF)
 
 option(ENABLE_TIMEPROF       "Enable time profiling"                    ON)
