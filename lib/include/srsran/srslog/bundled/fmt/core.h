@@ -1578,11 +1578,15 @@ class dynamic_format_arg_store
   template <typename T,
       typename std::enable_if<detail::is_string<typename std::decay<T>::type>::value, int>::type = 0>
    void push_back(const T& arg) {
-    fmt::string_view view(arg);
-    if (view.size() + 1 < dynamic_args_.max_pool_string_size) {
-      emplace_arg(dynamic_args_.push_small_string(view.data(), view.size() + 1));
+    if (detail::const_check(need_copy<T>::value)) {
+      fmt::string_view view(arg);
+      if (view.data() != null && view.size() + 1 < dynamic_args_.max_pool_string_size) {
+        emplace_arg(dynamic_args_.push_small_string(view.data(), view.size() + 1));
+      } else {
+        emplace_arg(dynamic_args_.push<stored_type<T> >(arg));
+      }
     } else {
-      emplace_arg(dynamic_args_.push<stored_type<T> >(arg));
+      emplace_arg(detail::unwrap(arg));
     }
   }
   template <typename T,
