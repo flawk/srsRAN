@@ -122,8 +122,6 @@ public:
     }
   }
 
-  // flawk - begin
-
   [[nodiscard]] static srsran_timestamp_t fix(const srsran_timestamp_t& ts)
   {
     const int64_t _full     = int64_t(ts.full_secs);
@@ -147,8 +145,6 @@ public:
     res << frac.str().erase(0, 1);
     return res.str();
   }
-
-  // flawk - end
 
 private:
   const srsran_timestamp_t                            default_ts = {};

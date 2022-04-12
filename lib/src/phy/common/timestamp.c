@@ -121,6 +121,6 @@ uint32_t srsran_timestamp_uint32(srsran_timestamp_t* t)
 
 uint64_t srsran_timestamp_uint64(const srsran_timestamp_t* t, double srate)
 {
-  //return (uint64_t)(t->full_secs * (uint64_t)srate) + (uint64_t)round(t->frac_secs * srate);
-  return (uint64_t)(t->full_secs * (uint64_t)srate) + (uint64_t)(t->frac_secs * srate);
+  return (uint64_t)(t->full_secs * (uint64_t)srate) + (uint64_t)round(t->frac_secs * srate);
+  //return (uint64_t)(t->full_secs * (uint64_t)srate) + (uint64_t)(t->frac_secs * srate);
 }
