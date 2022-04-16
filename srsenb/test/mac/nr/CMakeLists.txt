@@ -18,7 +18,7 @@
 # and at http://www.gnu.org/licenses/.
 #
 
-add_library(sched_nr_test_suite sched_nr_common_test.cc sched_nr_ue_ded_test_suite.cc)
+add_library(sched_nr_test_suite STATIC sched_nr_common_test.cc sched_nr_ue_ded_test_suite.cc)
 
 add_executable(sched_nr_test sched_nr_test.cc sched_nr_sim_ue.cc)
 target_link_libraries(sched_nr_test

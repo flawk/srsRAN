@@ -20,7 +20,7 @@
 
 set(CTEST_LABELS "lib;phy;fec;polar")
 
-add_library(polar_test_utils polar_sets.c subchannel_allocation.c)
+add_library(polar_test_utils STATIC polar_sets.c subchannel_allocation.c)
 
 add_executable(polar_chain_test polar_chain_test.c)
 
