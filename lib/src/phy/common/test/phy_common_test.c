@@ -46,7 +46,11 @@ int lte_standard_rates_test()
   TESTASSERT(srsran_sampling_freq_hz(15) == 3840000);
   TESTASSERT(srsran_sampling_freq_hz(25) == 7680000);
   TESTASSERT(srsran_sampling_freq_hz(50) == 15360000);
+#ifndef SRSRAN_DISABLE_FFT_1536
   TESTASSERT(srsran_sampling_freq_hz(75) == 23040000);
+#else
+  TESTASSERT(srsran_sampling_freq_hz(75) == 30720000);
+#endif
   TESTASSERT(srsran_sampling_freq_hz(100) == 30720000);
   return SRSRAN_SUCCESS;
 }
