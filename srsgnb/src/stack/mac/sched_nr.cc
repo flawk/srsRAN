@@ -61,7 +61,7 @@ public:
     }
 
     template <typename... Args>
-    void push(const char* fmt, Args&&... args)
+    void push(SRSRAN_FMT_STRING(Args...) fmt, Args&&... args)
     {
       if (log_enabled) {
         if (event_fmtbuf.size() > 0) {

@@ -47,11 +47,13 @@ class sched_tester : public sched_nr_base_test_bench
   sim_args_t args;
 
 public:
+  template <typename... Args>
   explicit sched_tester(sim_args_t                              args_,
                         const sched_nr_interface::sched_args_t& sched_args,
                         const std::vector<sched_nr_cell_cfg_t>& cell_params_,
-                        std::string                             test_name) :
-    sched_nr_base_test_bench(sched_args, cell_params_, test_name), args(args_)
+                        SRSRAN_FMT_STRING(Args...)              test_name,
+                        Args&&...                               test_name_args) :
+    sched_nr_base_test_bench(sched_args, cell_params_, 1, test_name, std::forward<Args>(test_name_args)...), args(args_)
   {}
 
   void process_slot_result(const sim_nr_enb_ctxt_t& enb_ctxt, srsran::const_span<cc_result_t> cc_out) override
@@ -140,8 +142,7 @@ void test_sched_nr_no_data(sim_args_t args)
   cfg.auto_refill_buffer                     = false;
   std::vector<sched_nr_cell_cfg_t> cells_cfg = get_default_cells_cfg(nof_sectors);
 
-  std::string  test_name = "Test with no data";
-  sched_tester tester(args, cfg, cells_cfg, test_name);
+  sched_tester tester(args, cfg, cells_cfg, "Test with no data");
 
   /* Set events */
   std::deque<sched_event_t> events;
@@ -183,8 +184,7 @@ void test_sched_nr_data(sim_args_t args)
   cfg.auto_refill_buffer                     = false;
   std::vector<sched_nr_cell_cfg_t> cells_cfg = get_default_cells_cfg(nof_sectors);
 
-  std::string  test_name = "Test with data";
-  sched_tester tester(args, cfg, cells_cfg, test_name);
+  sched_tester tester(args, cfg, cells_cfg, "Test with data");
 
   /* Set events */
   std::deque<sched_event_t> events;
@@ -274,7 +274,9 @@ sim_args_t handle_args(int argc, char** argv)
   // help option was given or error - print usage and exit
   if (vm.count("help")) {
     fmt::print("Usage: {} [OPTIONS] config_file\n\n", argv[0]);
-    fmt::print("{}\n", options);
+    std::stringstream options_ss{};
+    options_ss << options;
+    fmt::print("{}\n", options_ss.str());
     exit(0);
   }
 

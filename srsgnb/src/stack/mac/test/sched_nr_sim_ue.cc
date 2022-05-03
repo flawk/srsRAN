@@ -169,14 +169,16 @@ void sched_nr_ue_sim::update_dl_harqs(const sched_nr_cc_result_view& cc_out)
   }
 }
 
+template <typename... Args>
 sched_nr_base_test_bench::sched_nr_base_test_bench(const sched_nr_interface::sched_args_t& sched_args,
                                                    const std::vector<sched_nr_cell_cfg_t>& cell_cfg_list,
-                                                   std::string                             test_name_,
-                                                   uint32_t                                nof_workers) :
+                                                   uint32_t                                nof_workers,
+                                                   SRSRAN_FMT_STRING(Args...)              test_name_,
+                                                   Args&&...                               test_name_args_) :
   logger(srslog::fetch_basic_logger("TEST")),
   mac_logger(srslog::fetch_basic_logger("MAC-NR")),
   sched_ptr(new sched_nr()),
-  test_delimiter(new srsran::test_delimit_logger{test_name_.c_str()})
+  test_delimiter(new srsran::test_delimit_logger{test_name_, std::forward<Args>(test_name_args_)...})
 {
   sem_init(&slot_sem, 0, 1);
 
@@ -197,6 +199,16 @@ sched_nr_base_test_bench::sched_nr_base_test_bench(const sched_nr_interface::sch
 
   TESTASSERT(cell_params.size() > 0);
 }
+
+template sched_nr_base_test_bench::sched_nr_base_test_bench(const sched_nr_interface::sched_args_t& sched_args,
+                                                            const std::vector<sched_nr_cell_cfg_t>& cell_cfg_list,
+                                                            uint32_t                                nof_workers,
+                                                            SRSRAN_FMT_STRING() test_name_);
+template sched_nr_base_test_bench::sched_nr_base_test_bench(const sched_nr_interface::sched_args_t& sched_args,
+                                                            const std::vector<sched_nr_cell_cfg_t>& cell_cfg_list,
+                                                            uint32_t                                nof_workers,
+                                                            SRSRAN_FMT_STRING(uint32_t&) test_name_,
+                                                            uint32_t& arg1);
 
 sched_nr_base_test_bench::~sched_nr_base_test_bench()
 {

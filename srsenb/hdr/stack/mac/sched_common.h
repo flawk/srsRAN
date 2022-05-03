@@ -29,8 +29,8 @@
 namespace srsenb {
 
 /// Error code of alloc attempt
-enum class alloc_result {
-  success,
+enum class alloc_result : unsigned {
+  success = 0,
   sch_collision,
   no_cch_space,
   no_sch_space,

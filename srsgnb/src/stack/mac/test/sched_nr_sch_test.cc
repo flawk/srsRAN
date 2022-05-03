@@ -302,16 +302,21 @@ void test_pdsch_fail()
   rbgs.set(1);
   rbgs.set(3);
   prb_grant grant_type0 = rbgs;
-  TESTASSERT_EQ(alloc_result::invalid_grant_params, pdsch_sched.alloc_si_pdsch(0, grant_type0, pdcch_si.dci).error());
-  TESTASSERT_EQ(alloc_result::invalid_grant_params, pdsch_sched.alloc_rar_pdsch(grant_type0, pdcch_rar.dci).error());
-  TESTASSERT_EQ(alloc_result::invalid_grant_params,
-                pdsch_sched.alloc_ue_pdsch(1, srsran_dci_format_nr_1_0, grant_type0, ue_cc, pdcch.dci).error());
-  TESTASSERT_EQ(alloc_result::invalid_grant_params,
-                pdsch_sched.alloc_ue_pdsch(2, srsran_dci_format_nr_1_0, grant_type0, ue_cc, pdcch.dci).error());
+  TESTASSERT_EQ(unsigned(alloc_result::invalid_grant_params),
+                unsigned(pdsch_sched.alloc_si_pdsch(0, grant_type0, pdcch_si.dci).error()));
+  TESTASSERT_EQ(unsigned(alloc_result::invalid_grant_params),
+                unsigned(pdsch_sched.alloc_rar_pdsch(grant_type0, pdcch_rar.dci).error()));
+  TESTASSERT_EQ(
+      unsigned(alloc_result::invalid_grant_params),
+      unsigned(pdsch_sched.alloc_ue_pdsch(1, srsran_dci_format_nr_1_0, grant_type0, ue_cc, pdcch.dci).error()));
+  TESTASSERT_EQ(
+      unsigned(alloc_result::invalid_grant_params),
+      unsigned(pdsch_sched.alloc_ue_pdsch(2, srsran_dci_format_nr_1_0, grant_type0, ue_cc, pdcch.dci).error()));
 
   // Resource Allocation type must be compatible with UE PDSCH configuration
-  TESTASSERT_EQ(alloc_result::invalid_grant_params,
-                pdsch_sched.alloc_ue_pdsch(2, srsran_dci_format_nr_1_1, grant_type0, ue_cc, pdcch.dci).error());
+  TESTASSERT_EQ(
+      unsigned(alloc_result::invalid_grant_params),
+      unsigned(pdsch_sched.alloc_ue_pdsch(2, srsran_dci_format_nr_1_1, grant_type0, ue_cc, pdcch.dci).error()));
 
   // Allocations of DCI format 1_0 should start from CORESET first RB and their BW should be limited by CORESET#0 BW
   prb_grant grant_type1 = prb_interval{0, bwp_params.coreset_prb_range(0).stop()};
@@ -356,13 +361,13 @@ void test_multi_pdsch()
   prb_bitmap   sib_prbs        = ~used_prbs;
   int          first_prb       = sib_prbs.find_lowest(0, sib_prbs.size(), true);
   prb_interval sib_grant{(uint32_t)first_prb, sib1_grant_size};
-  TESTASSERT_EQ(alloc_result::success, pdsch_sched.is_si_grant_valid(ss_id, sib_grant));
+  TESTASSERT_EQ(unsigned(alloc_result::success), unsigned(pdsch_sched.is_si_grant_valid(ss_id, sib_grant)));
   alloc_res = pdsch_sched.alloc_si_pdsch(ss_id, sib_grant, pdcch->dci);
   TESTASSERT(alloc_res.has_value());
   test_dci_freq_assignment(bwp_params, sib_grant, *pdcch);
   prb_bitmap used_prbs_sib1 = pdsch_sched.occupied_prbs(ss_id, srsran_dci_format_nr_1_0);
   TESTASSERT_EQ(used_prbs_sib1.count(), used_prbs.count() + sib_grant.length());
-  TESTASSERT_EQ(alloc_result::sch_collision, pdsch_sched.is_si_grant_valid(ss_id, sib_grant));
+  TESTASSERT_EQ(unsigned(alloc_result::sch_collision), unsigned(pdsch_sched.is_si_grant_valid(ss_id, sib_grant)));
 
   prb_bitmap last_prb_bitmap(used_prbs.size());
   last_prb_bitmap.fill(sib_grant.start(), sib_grant.stop());
@@ -375,14 +380,14 @@ void test_multi_pdsch()
   first_prb                  = ue_prbs.find_lowest(0, ue_prbs.size(), true);
   uint32_t     ue_grant_size = 10;
   prb_interval ue_grant{(uint32_t)first_prb, ue_grant_size};
-  TESTASSERT_EQ(alloc_result::success, pdsch_sched.is_ue_grant_valid(ue_cc, ss_id, srsran_dci_format_nr_1_0, ue_grant));
+  TESTASSERT_EQ(unsigned(alloc_result::success), unsigned(pdsch_sched.is_ue_grant_valid(ue_cc, ss_id, srsran_dci_format_nr_1_0, ue_grant)));
   alloc_res = pdsch_sched.alloc_ue_pdsch(ss_id, srsran_dci_format_nr_1_0, ue_grant, ue_cc, pdcch->dci);
   TESTASSERT(alloc_res.has_value());
   test_dci_freq_assignment(bwp_params, ue_grant, *pdcch);
   prb_bitmap used_prbs_ue = pdsch_sched.occupied_prbs(ss_id, srsran_dci_format_nr_1_0);
   TESTASSERT_EQ(used_prbs_ue.count(), used_prbs_sib1.count() + ue_grant.length());
-  TESTASSERT_EQ(alloc_result::sch_collision,
-                pdsch_sched.is_ue_grant_valid(ue_cc, ss_id, srsran_dci_format_nr_1_0, ue_grant));
+  TESTASSERT_EQ(unsigned(alloc_result::sch_collision),
+                unsigned(pdsch_sched.is_ue_grant_valid(ue_cc, ss_id, srsran_dci_format_nr_1_0, ue_grant)));
 
   last_prb_bitmap.reset();
   last_prb_bitmap.fill(ue_grant.start(), ue_grant.stop());
@@ -394,15 +399,15 @@ void test_multi_pdsch()
   used_prbs              = pdsch_sched.occupied_prbs(ss_id, srsran_dci_format_nr_1_0);
   prb_interval ue_grant2 = find_empty_interval_of_length(used_prbs, used_prbs_ue.size(), 0);
   TESTASSERT_EQ(bwp_params.nof_prb, ue_grant2.stop());
-  TESTASSERT_EQ(alloc_result::success,
-                pdsch_sched.is_ue_grant_valid(ue_cc, ss_id, srsran_dci_format_nr_1_0, ue_grant2));
+  TESTASSERT_EQ(unsigned(alloc_result::success),
+                unsigned(pdsch_sched.is_ue_grant_valid(ue_cc, ss_id, srsran_dci_format_nr_1_0, ue_grant2)));
   alloc_res = pdsch_sched.alloc_ue_pdsch(ss_id, srsran_dci_format_nr_1_0, ue_grant2, ue_cc, pdcch->dci);
   TESTASSERT(alloc_res.has_value());
   test_dci_freq_assignment(bwp_params, ue_grant2, *pdcch);
   prb_bitmap used_prbs_ue2 = pdsch_sched.occupied_prbs(ss_id, srsran_dci_format_nr_1_0);
   TESTASSERT_EQ(used_prbs_ue2.count(), used_prbs.count() + ue_grant2.length());
-  TESTASSERT_EQ(alloc_result::sch_collision,
-                pdsch_sched.is_ue_grant_valid(ue_cc, ss_id, srsran_dci_format_nr_1_0, ue_grant2));
+  TESTASSERT_EQ(unsigned(alloc_result::sch_collision),
+                unsigned(pdsch_sched.is_ue_grant_valid(ue_cc, ss_id, srsran_dci_format_nr_1_0, ue_grant2)));
 
   last_prb_bitmap.reset();
   last_prb_bitmap.fill(ue_grant2.start(), ue_grant2.stop());
@@ -444,13 +449,13 @@ void test_multi_pusch()
   prb_bitmap   used_prbs     = pusch_sched.occupied_prbs();
   uint32_t     ue_grant_size = 10;
   prb_interval ue_grant      = find_empty_interval_of_length(used_prbs, ue_grant_size);
-  TESTASSERT_EQ(alloc_result::success, pusch_sched.is_grant_valid(srsran_search_space_type_common_1, ue_grant));
+  TESTASSERT_EQ(unsigned(alloc_result::success), unsigned(pusch_sched.is_grant_valid(srsran_search_space_type_common_1, ue_grant)));
   alloc_res = pusch_sched.alloc_pusch(pdcch->dci.ctx.ss_type, ue_grant, pdcch->dci);
   TESTASSERT(alloc_res.has_value());
   prb_bitmap used_prbs_ue1 = pusch_sched.occupied_prbs();
   TESTASSERT_EQ(used_prbs_ue1.count(), used_prbs.count() + ue_grant.length());
-  TESTASSERT_EQ(alloc_result::sch_collision,
-                pusch_sched.is_grant_valid(srsran_search_space_type_common_1, ue_grant, false));
+  TESTASSERT_EQ(unsigned(alloc_result::sch_collision),
+                unsigned(pusch_sched.is_grant_valid(srsran_search_space_type_common_1, ue_grant, false)));
 
   prb_bitmap last_prb_bitmap(used_prbs.size());
   last_prb_bitmap.fill(ue_grant.start(), ue_grant.stop());
@@ -461,12 +466,12 @@ void test_multi_pusch()
   pdcch                  = &pdcch_ue2;
   used_prbs              = pusch_sched.occupied_prbs();
   prb_interval ue2_grant = find_empty_interval_of_length(used_prbs, used_prbs.size());
-  TESTASSERT_EQ(alloc_result::success, pusch_sched.is_grant_valid(srsran_search_space_type_ue, ue2_grant));
+  TESTASSERT_EQ(unsigned(alloc_result::success), unsigned(pusch_sched.is_grant_valid(srsran_search_space_type_ue, ue2_grant)));
   alloc_res = pusch_sched.alloc_pusch(pdcch->dci.ctx.ss_type, ue2_grant, pdcch->dci);
   TESTASSERT(alloc_res.has_value());
   prb_bitmap used_prbs_ue2 = pusch_sched.occupied_prbs();
   TESTASSERT_EQ(used_prbs_ue2.count(), used_prbs.count() + ue2_grant.length());
-  TESTASSERT_EQ(alloc_result::sch_collision, pusch_sched.is_grant_valid(srsran_search_space_type_ue, ue2_grant, false));
+  TESTASSERT_EQ(unsigned(alloc_result::sch_collision), unsigned(pusch_sched.is_grant_valid(srsran_search_space_type_ue, ue2_grant, false)));
 
   last_prb_bitmap.reset();
   last_prb_bitmap.fill(ue2_grant.start(), ue2_grant.stop());

@@ -175,7 +175,7 @@ class test_delimit_logger
 
 public:
   template <typename... Args>
-  explicit test_delimit_logger(const char* test_name_fmt, Args&&... args)
+  explicit test_delimit_logger(SRSRAN_FMT_STRING(Args...) test_name_fmt, Args&&... args)
   {
     test_name               = fmt::format(test_name_fmt, std::forward<Args>(args)...);
     std::string name_str    = fmt::format("[ Test \"{}\" ]", test_name);

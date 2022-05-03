@@ -1130,11 +1130,11 @@ int segment_retx_test(rlc_am_nr_sn_size_t sn_size)
       // Double check header.
       TESTASSERT_EQ(3, header_check.sn); // Double check RETX SN
       if (i == 0) {
-        TESTASSERT_EQ(rlc_nr_si_field_t::first_segment, header_check.si);
+        TESTASSERT_EQ(unsigned(rlc_nr_si_field_t::first_segment), unsigned(header_check.si));
       } else if (i == 1) {
-        TESTASSERT_EQ(rlc_nr_si_field_t::neither_first_nor_last_segment, header_check.si);
+        TESTASSERT_EQ(unsigned(rlc_nr_si_field_t::neither_first_nor_last_segment), unsigned(header_check.si));
       } else {
-        TESTASSERT_EQ(rlc_nr_si_field_t::last_segment, header_check.si);
+        TESTASSERT_EQ(unsigned(rlc_nr_si_field_t::last_segment), unsigned(header_check.si));
       }
 
       rlc2.write_pdu(retx_buf.msg, retx_buf.N_bytes);
@@ -1327,11 +1327,11 @@ int segment_retx_and_loose_segments_test(rlc_am_nr_sn_size_t sn_size)
       // Double check header.
       TESTASSERT_EQ(3, header_check.sn); // Double check RETX SN
       if (i == 0) {
-        TESTASSERT_EQ(rlc_nr_si_field_t::first_segment, header_check.si);
+        TESTASSERT_EQ(unsigned(rlc_nr_si_field_t::first_segment), unsigned(header_check.si));
       } else if (i == 1) {
-        TESTASSERT_EQ(rlc_nr_si_field_t::neither_first_nor_last_segment, header_check.si);
+        TESTASSERT_EQ(unsigned(rlc_nr_si_field_t::neither_first_nor_last_segment), unsigned(header_check.si));
       } else {
-        TESTASSERT_EQ(rlc_nr_si_field_t::last_segment, header_check.si);
+        TESTASSERT_EQ(unsigned(rlc_nr_si_field_t::last_segment), unsigned(header_check.si));
       }
 
       // We loose the first and the last segment
@@ -1400,9 +1400,9 @@ int segment_retx_and_loose_segments_test(rlc_am_nr_sn_size_t sn_size)
       // Double check header.
       TESTASSERT_EQ(3, header_check.sn); // Double check RETX SN
       if (i == 0) {
-        TESTASSERT_EQ(rlc_nr_si_field_t::first_segment, header_check.si);
+        TESTASSERT_EQ(unsigned(rlc_nr_si_field_t::first_segment), unsigned(header_check.si));
       } else {
-        TESTASSERT_EQ(rlc_nr_si_field_t::last_segment, header_check.si);
+        TESTASSERT_EQ(unsigned(rlc_nr_si_field_t::last_segment), unsigned(header_check.si));
       }
 
       rlc2.write_pdu(retx_buf.msg, retx_buf.N_bytes);
@@ -1468,8 +1468,7 @@ int retx_segment_test(rlc_am_nr_sn_size_t sn_size)
   auto&               test_logger = srslog::fetch_basic_logger("TESTER  ");
   rlc_am              rlc1(srsran_rat_t::nr, srslog::fetch_basic_logger("RLC_AM_1"), 1, &tester, &tester, &timers);
   rlc_am              rlc2(srsran_rat_t::nr, srslog::fetch_basic_logger("RLC_AM_2"), 1, &tester, &tester, &timers);
-  std::string         str = "retx segment PDU (" + std::to_string(to_number(sn_size)) + " bit SN)";
-  test_delimit_logger delimiter(str.c_str());
+  test_delimit_logger delimiter("retx segment PDU ({} bit SN)", to_number(sn_size));
 
   rlc_am_nr_tx* tx1 = dynamic_cast<rlc_am_nr_tx*>(rlc1.get_tx());
   rlc_am_nr_rx* rx1 = dynamic_cast<rlc_am_nr_rx*>(rlc1.get_rx());
@@ -1708,13 +1707,13 @@ int retx_segment_test(rlc_am_nr_sn_size_t sn_size)
       // Double check header.
       if (i == 0) {
         TESTASSERT_EQ(1, header_check.sn); // Double check RETX SN
-        TESTASSERT_EQ(rlc_nr_si_field_t::first_segment, header_check.si);
+        TESTASSERT_EQ(unsigned(rlc_nr_si_field_t::first_segment), unsigned(header_check.si));
       } else if (i == 1) {
         TESTASSERT_EQ(2, header_check.sn); // Double check RETX SN
-        TESTASSERT_EQ(rlc_nr_si_field_t::neither_first_nor_last_segment, header_check.si);
+        TESTASSERT_EQ(unsigned(rlc_nr_si_field_t::neither_first_nor_last_segment), unsigned(header_check.si));
       } else {
         TESTASSERT_EQ(3, header_check.sn); // Double check RETX SN
-        TESTASSERT_EQ(rlc_nr_si_field_t::last_segment, header_check.si);
+        TESTASSERT_EQ(unsigned(rlc_nr_si_field_t::last_segment), unsigned(header_check.si));
       }
 
       rlc2.write_pdu(retx_buf.msg, retx_buf.N_bytes);

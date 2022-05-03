@@ -24,9 +24,11 @@
 
 #ifndef SRSRAN_EXTERNAL_FMT
 #include "srsran/srslog/bundled/fmt/printf.h"
+#define SRSRAN_FMT_STRING(Args) const char*
 #else
 #include <fmt/printf.h>
 #include <fmt/args.h>
+#define SRSRAN_FMT_STRING(Args) fmt::format_string<Args>
 #endif
 #include "srsran/srslog/shared_types.h"
 

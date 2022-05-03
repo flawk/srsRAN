@@ -26,7 +26,7 @@ namespace srsenb {
 namespace sched_nr_impl {
 
 template <typename... Args>
-void log_alloc_failure(srslog::log_channel& log_ch, const char* cause_fmt, Args&&... args)
+void log_alloc_failure(srslog::log_channel& log_ch, SRSRAN_FMT_STRING(Args...) cause_fmt, Args&&... args)
 {
   if (not log_ch.enabled()) {
     return;
@@ -255,7 +255,7 @@ void pdsch_allocator::cancel_last_pdsch()
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename... Args>
-void log_pusch_alloc_failure(srslog::log_channel& log_ch, const char* cause_fmt, Args&&... args)
+void log_pusch_alloc_failure(srslog::log_channel& log_ch, SRSRAN_FMT_STRING(Args...) cause_fmt, Args&&... args)
 {
   if (not log_ch.enabled()) {
     return;

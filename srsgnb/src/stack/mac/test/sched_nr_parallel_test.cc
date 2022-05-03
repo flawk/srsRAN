@@ -84,11 +84,9 @@ void run_sched_nr_test(uint32_t nof_workers)
 
   std::vector<sched_nr_cell_cfg_t> cells_cfg = get_default_cells_cfg(nof_sectors);
 
-  std::string test_name = "Serialized Test";
-  if (nof_workers > 1) {
-    test_name = fmt::format("Parallel Test with {} workers", nof_workers);
-  }
-  sched_nr_tester tester(cfg, cells_cfg, test_name, nof_workers);
+  auto tester = nof_workers > 1
+                    ? sched_nr_tester{cfg, cells_cfg, nof_workers, "Parallel Test with {} workers", nof_workers}
+                    : sched_nr_tester{cfg, cells_cfg, nof_workers, "Serialized Test"};
 
   for (uint32_t nof_slots = 0; nof_slots < max_nof_ttis; ++nof_slots) {
     slot_point slot_rx(0, nof_slots % 10240);
