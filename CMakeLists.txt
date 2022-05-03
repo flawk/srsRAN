@@ -81,7 +81,7 @@ option(ENABLE_SRSENB         "Build srsENB application"                 ON)
 option(ENABLE_SRSEPC         "Build srsEPC application"                 ON)
 option(DISABLE_SIMD          "Disable SIMD instructions"                OFF)
 option(AUTO_DETECT_ISA       "Autodetect supported ISA extensions"      ON)
-option(ENABLE_C16            "Enable complex 16 API"                    ON)
+option(ENABLE_C16            "Enable complex 16 API"                    OFF)
 
 option(ENABLE_GUI            "Enable GUI (using srsGUI)"                ON)
 option(ENABLE_RF_PLUGINS     "Enable RF plugins"                        ON)
