@@ -144,7 +144,7 @@ void metrics_stdout::set_metrics_helper(const phy_metrics_t& phy,
   fmt::print(" |");
 
   fmt::print("  {:>2}", int(phy.dl[r].mcs));
-  if (std::isnan(phy.ch[r].sinr) || std::isinf(phy.ch[r].sinr)) {
+  if (srsran::isnan(phy.ch[r].sinr) || srsran::isinf(phy.ch[r].sinr)) {
     fmt::print("  {:>3}", "n/a");
   } else {
     fmt::print("  {:>3}", int(phy.ch[r].sinr));

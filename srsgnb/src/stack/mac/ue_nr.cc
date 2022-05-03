@@ -247,7 +247,7 @@ void ue_nr::metrics_pucch_sinr(float sinr)
 {
   std::lock_guard<std::mutex> lock(metrics_mutex);
   // discard nan or inf values for average SINR
-  if (!std::isinf(sinr) && !std::isnan(sinr)) {
+  if (!srsran::isinf(sinr) && !srsran::isnan(sinr)) {
     ue_metrics.pucch_sinr = SRSRAN_VEC_SAFE_CMA((float)sinr, ue_metrics.pucch_sinr, pucch_sinr_counter);
     pucch_sinr_counter++;
   }
@@ -257,7 +257,7 @@ void ue_nr::metrics_pusch_sinr(float sinr)
 {
   std::lock_guard<std::mutex> lock(metrics_mutex);
   // discard nan or inf values for average SINR
-  if (!std::isinf(sinr) && !std::isnan(sinr)) {
+  if (!srsran::isinf(sinr) && !srsran::isnan(sinr)) {
     ue_metrics.pusch_sinr = SRSRAN_VEC_SAFE_CMA((float)sinr, ue_metrics.pusch_sinr, pusch_sinr_counter);
     pusch_sinr_counter++;
   }
