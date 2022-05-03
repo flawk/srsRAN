@@ -1,5 +1,5 @@
 /**
- * Copyright 2013-2021 Software Radio Systems Limited
+ * Copyright 2013-2022 Software Radio Systems Limited
  *
  * This file is part of srsRAN.
  *
@@ -118,7 +118,7 @@ int parser::section::parse(Setting& root)
       *enabled_value = false;
       return 0;
     } else {
-      std::cerr << "Error section " << name.c_str() << " not found." << std::endl;
+      std::cerr << "Error in section " << name.c_str() << ". " << ex.getPath() << " not found." << std::endl;
       return -1;
     }
   }

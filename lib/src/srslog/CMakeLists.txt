@@ -1,5 +1,5 @@
 #
-# Copyright 2013-2021 Software Radio Systems Limited
+# Copyright 2013-2022 Software Radio Systems Limited
 #
 # This file is part of srsRAN
 #
@@ -47,4 +47,4 @@ target_link_libraries(srslog ${CMAKE_THREAD_LIBS_INIT})
 if(ENABLE_EXTERNAL_FMT)
   target_link_libraries(srslog PUBLIC fmt::fmt)
 endif(ENABLE_EXTERNAL_FMT)
-INSTALL(TARGETS srslog DESTINATION ${LIBRARY_DIR})
+install(TARGETS srslog DESTINATION ${LIBRARY_DIR} OPTIONAL)
