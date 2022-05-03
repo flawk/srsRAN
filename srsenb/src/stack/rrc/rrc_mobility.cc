@@ -1061,7 +1061,7 @@ void rrc::ue::rrc_mobility::handle_status_transfer(s1_target_ho_st& s, const sta
     auto        drb_it = std::find_if(
         drbs.begin(), drbs.end(), [drbid](const drb_to_add_mod_s& drb) { return (lte_drb)drb.drb_id == drbid; });
     if (drb_it == drbs.end()) {
-      logger.warning("The DRB id=%d does not exist", (uint8_t)drbid);
+      logger.warning("The DRB id=%d does not exist", uint8_t(drbid));
     }
 
     srsran::pdcp_lte_state_t drb_state{};

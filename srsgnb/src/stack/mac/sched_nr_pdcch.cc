@@ -27,12 +27,12 @@ namespace srsenb {
 namespace sched_nr_impl {
 
 template <typename... Args>
-void log_pdcch_alloc_failure(srslog::log_channel&    log_ch,
-                             srsran_rnti_type_t      rnti_type,
-                             uint32_t                ss_id,
-                             uint16_t                rnti,
+void log_pdcch_alloc_failure(srslog::log_channel&       log_ch,
+                             srsran_rnti_type_t         rnti_type,
+                             uint32_t                   ss_id,
+                             uint16_t                   rnti,
                              SRSRAN_FMT_STRING(Args...) cause_fmt,
-                             Args&&...               args)
+                             Args&&...                  args)
 {
   if (not log_ch.enabled()) {
     return;
