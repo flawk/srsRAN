@@ -274,9 +274,7 @@ sim_args_t handle_args(int argc, char** argv)
   // help option was given or error - print usage and exit
   if (vm.count("help")) {
     fmt::print("Usage: {} [OPTIONS] config_file\n\n", argv[0]);
-    std::stringstream options_ss{};
-    options_ss << options;
-    fmt::print("{}\n", options_ss.str());
+    fmt::print("{}\n", options);
     exit(0);
   }
 
