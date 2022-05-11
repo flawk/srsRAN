@@ -195,7 +195,10 @@ if(USE_MKL)
   link_directories(${MKL_LIBRARY_DIRS})
   set(FFT_LIBRARIES MKL::MKL)
   if (CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
-    add_compile_definitions(TBB_USE_DEBUG)
+    add_compile_definitions(
+      TBB_USE_DEBUG
+      MKL_VERBOSE=2
+    )
   endif ()
 else(USE_MKL)
   find_package(FFTW3F REQUIRED)
