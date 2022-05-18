@@ -40,7 +40,6 @@ class rlc_tester : public srsue::pdcp_interface_rlc, public srsue::rrc_interface
 public:
   rlc_tester()
   {
-    bzero(sdus, sizeof(sdus));
     n_sdus           = 0;
     expected_sdu_len = 0;
   }
@@ -67,7 +66,7 @@ public:
   const char* get_rb_name(uint32_t lcid) { return "TestRB"; }
   void        set_expected_sdu_len(uint32_t len) { expected_sdu_len = len; }
 
-  unique_byte_buffer_t sdus[MAX_NBUFS];
+  unique_byte_buffer_t sdus[MAX_NBUFS]{};
   int                  n_sdus;
   uint32_t             expected_sdu_len;
 };
