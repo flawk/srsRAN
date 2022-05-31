@@ -194,7 +194,7 @@ if(USE_MKL)
   include_directories(${MKL_INCLUDE_DIRS})
   link_directories(${MKL_LIBRARY_DIRS})
   set(FFT_LIBRARIES MKL::MKL)
-  if (CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
+  if (CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_compile_definitions(
       TBB_USE_DEBUG
       MKL_VERBOSE=2
