@@ -45,8 +45,6 @@ set(CMAKE_CXX_STANDARD          11 CACHE STRING "")
 
 ### https://cmake.org/cmake/help/latest/prop_tgt/CXX_EXTENSIONS.html#prop_tgt:CXX_EXTENSIONS
 # Let's ensure -std=cxx instead of -std=gxx
-set(C_EXTENSIONS         OFF CACHE INTERNAL "")
-set(CXX_EXTENSIONS       OFF CACHE INTERNAL "")
 set(CMAKE_C_EXTENSIONS   OFF CACHE INTERNAL "")
 set(CMAKE_CXX_EXTENSIONS OFF CACHE INTERNAL "")
 
