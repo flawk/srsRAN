@@ -337,7 +337,11 @@ int main(int argc, char** argv)
     }
 
     if (memcmp(data_rx, data, (size_t)cfg.grant.tb.tbs / 8) != 0) {
-      printf("Unmatched data detected\n");
+      printf("Unmatched data detected:\n");
+      printf("\tTx: ");
+      srsran_vec_fprint_byte(stdout, data, (size_t)cfg.grant.tb.tbs / 8);
+      printf("\tRx: ");
+      srsran_vec_fprint_byte(stdout, data_rx, (size_t)cfg.grant.tb.tbs / 8);
       ret = SRSRAN_ERROR;
     } else {
       INFO("Rx Data is Ok");
