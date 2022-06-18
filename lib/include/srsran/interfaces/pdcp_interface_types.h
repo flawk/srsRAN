@@ -66,7 +66,7 @@ static const char* pdcp_pdu_type_text[PDCP_PDU_TYPE_N_ITEMS] = {"PDCP Report PDU
                                                                 "LWA End-marker Packet"};
 
 // Taken from PDCP-Config (TS 38.331 version 15.2.1)
-enum class pdcp_t_reordering_t {
+enum class pdcp_t_reordering_t : int {
   ms0      = 0,
   ms1      = 1,
   ms2      = 2,
@@ -107,7 +107,7 @@ enum class pdcp_t_reordering_t {
 };
 
 // Taken from PDCP-Config (TS 38.331 version 15.2.1)
-enum class pdcp_discard_timer_t {
+enum class pdcp_discard_timer_t : int {
   ms10     = 10,
   ms20     = 20,
   ms30     = 30,

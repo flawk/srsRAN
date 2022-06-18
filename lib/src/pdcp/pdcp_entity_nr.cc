@@ -73,8 +73,8 @@ bool pdcp_entity_nr::configure(const pdcp_config_t& cnfg_)
   logger.info("%s PDCP-NR entity configured. SN_LEN=%d, Discard timer %d, Re-ordering timer %d, RLC=%s, RAT=%s",
               rb_name,
               cfg.sn_len,
-              cfg.discard_timer,
-              cfg.t_reordering,
+              static_cast<int>(cfg.discard_timer),
+              static_cast<int>(cfg.t_reordering),
               rlc_mode == rlc_mode_t::UM ? "UM" : "AM",
               to_string(cfg.rat));
 
