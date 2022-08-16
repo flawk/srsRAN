@@ -133,7 +133,7 @@ int field_intra_neigh_cell_list::parse(libconfig::Setting& root)
 int field_intra_black_cell_list::parse(libconfig::Setting& root)
 {
   data->intra_freq_black_cell_list.resize((uint32_t)root.getLength());
-  data->intra_freq_black_cell_list_present = data->intra_freq_neigh_cell_list.size() > 0;
+  data->intra_freq_black_cell_list_present = data->intra_freq_black_cell_list.size() > 0;
   for (uint32_t i = 0; i < data->intra_freq_black_cell_list.size() && i < ASN1_RRC_MAX_CELL_BLACK; i++) {
     if (not parse_enum_by_number(data->intra_freq_black_cell_list[i].range, "range", root[i])) {
       fprintf(stderr, "Missing field range in black_cell=%d\n", i);
@@ -147,6 +147,261 @@ int field_intra_black_cell_list::parse(libconfig::Setting& root)
       return SRSRAN_ERROR;
     }
     data->intra_freq_black_cell_list[i].start = (uint16)start;
+  }
+  return 0;
+}
+
+int field_inter_freq_carrier_freq_list::parse(libconfig::Setting& root)
+{
+  data->inter_freq_carrier_freq_list.resize((uint32_t)root.getLength());
+  for (uint32_t i = 0; i < data->inter_freq_carrier_freq_list.size() && i < ASN1_RRC_MAX_FREQ; i++) {
+    unsigned int dl_carrier_freq = 0;
+    if (!root[i].lookupValue("dl_carrier_freq", dl_carrier_freq)) {
+      ERROR("Missing field `dl_carrier_freq` in inter_freq_carrier_freq_list=%d", i);
+      return SRSRAN_ERROR;
+    }
+    data->inter_freq_carrier_freq_list[i].dl_carrier_freq = dl_carrier_freq;
+
+    int q_rx_lev_min = 0;
+    if (!root[i].lookupValue("q_rx_lev_min", q_rx_lev_min)) {
+      ERROR("Missing field `q_rx_lev_min` in inter_freq_carrier_freq_list=%d", i);
+      return SRSRAN_ERROR;
+    }
+    data->inter_freq_carrier_freq_list[i].q_rx_lev_min = q_rx_lev_min;
+
+    int p_max = 0;
+    if (root[i].lookupValue("p_max", p_max)) {
+      data->inter_freq_carrier_freq_list[i].p_max_present = true;
+      data->inter_freq_carrier_freq_list[i].p_max         = p_max;
+    }
+
+    unsigned int t_resel_eutra = 0;
+    if (!root[i].lookupValue("t_resel_eutra", t_resel_eutra)) {
+      ERROR("Missing field `t_resel_eutra` in inter_freq_carrier_freq_list=%d", i);
+      return SRSRAN_ERROR;
+    }
+    data->inter_freq_carrier_freq_list[i].t_resel_eutra = t_resel_eutra;
+
+    if (root[i].exists("t_resel_eutra_sf")) {
+      data->inter_freq_carrier_freq_list[i].t_resel_eutra_sf_present = true;
+
+      field_asn1_enum_number_str<asn1::rrc::speed_state_scale_factors_s::sf_medium_e_> sf_medium(
+          "sf_medium", &data->inter_freq_carrier_freq_list[i].t_resel_eutra_sf.sf_medium);
+      if (sf_medium.parse(root[i]["t_resel_eutra_sf"])) {
+        ERROR("Error parsing `sf_medium` in inter_freq_carrier_freq_list=%d t_resel_eutra_sf", i);
+        return SRSRAN_ERROR;
+      }
+
+      field_asn1_enum_number_str<asn1::rrc::speed_state_scale_factors_s::sf_high_e_> sf_high(
+          "sf_high", &data->inter_freq_carrier_freq_list[i].t_resel_eutra_sf.sf_high);
+      if (sf_high.parse(root[i]["t_resel_eutra_sf"])) {
+        ERROR("Error parsing `sf_high` in inter_freq_carrier_freq_list=%d t_resel_eutra_sf", i);
+        return SRSRAN_ERROR;
+      }
+    }
+
+    unsigned int thresh_x_high = 0;
+    if (!root[i].lookupValue("thresh_x_high", thresh_x_high)) {
+      ERROR("Missing field `thresh_x_high` in inter_freq_carrier_freq_list=%d", i);
+      return SRSRAN_ERROR;
+    }
+    data->inter_freq_carrier_freq_list[i].thresh_x_high = thresh_x_high;
+
+    unsigned int thresh_x_low = 0;
+    if (!root[i].lookupValue("thresh_x_low", thresh_x_low)) {
+      ERROR("Missing field `thresh_x_low` in inter_freq_carrier_freq_list=%d", i);
+      return SRSRAN_ERROR;
+    }
+    data->inter_freq_carrier_freq_list[i].thresh_x_low = thresh_x_low;
+
+    field_asn1_enum_number<asn1::rrc::allowed_meas_bw_e> allowed_meas_bw(
+        "allowed_meas_bw", &data->inter_freq_carrier_freq_list[i].allowed_meas_bw);
+    if (allowed_meas_bw.parse(root[i])) {
+      ERROR("Error parsing `allowed_meas_bw` in inter_freq_carrier_freq_list=%d", i);
+      return SRSRAN_ERROR;
+    }
+
+    bool presence_ant_port1 = 0;
+    if (!root[i].lookupValue("presence_ant_port_1", presence_ant_port1)) {
+      ERROR("Missing field `presence_ant_port_1` in inter_freq_carrier_freq_list=%d", i);
+      return SRSRAN_ERROR;
+    }
+    data->inter_freq_carrier_freq_list[i].presence_ant_port1 = presence_ant_port1;
+
+    unsigned int cell_resel_prio = 0;
+    if (root[i].lookupValue("cell_resel_prio", cell_resel_prio)) {
+      data->inter_freq_carrier_freq_list[i].cell_resel_prio_present = true;
+      data->inter_freq_carrier_freq_list[i].cell_resel_prio         = cell_resel_prio;
+    }
+
+    field_asn1_enum_number<asn1::rrc::q_offset_range_e> q_offset_freq(
+        "q_offset_freq", &data->inter_freq_carrier_freq_list[i].q_offset_freq);
+    if (!q_offset_freq.parse(root[i])) {
+      data->inter_freq_carrier_freq_list[i].q_offset_freq_present = true;
+    }
+
+    field_asn1_bitstring_number<asn1::fixed_bitstring<2>, uint8_t> neigh_cell_cfg(
+        "neigh_cell_cfg", &data->inter_freq_carrier_freq_list[i].neigh_cell_cfg);
+    if (neigh_cell_cfg.parse(root[i])) {
+      ERROR("Error parsing `neigh_cell_cfg` in inter_freq_carrier_freq_list=%d", i);
+      return SRSRAN_ERROR;
+    }
+
+    if (root[i].exists("inter_freq_neigh_cell_list")) {
+      auto inter_neigh_cell_list_parser = new field_inter_freq_neigh_cell_list(&data->inter_freq_carrier_freq_list[i]);
+      HANDLEPARSERCODE(inter_neigh_cell_list_parser->parse(root[i]["inter_freq_neigh_cell_list"]));
+    }
+
+    if (root[i].exists("inter_freq_black_cell_list")) {
+      auto inter_black_cell_list_parser = new field_inter_freq_black_cell_list(&data->inter_freq_carrier_freq_list[i]);
+      HANDLEPARSERCODE(inter_black_cell_list_parser->parse(root[i]["inter_freq_black_cell_list"]));
+    }
+  }
+  return 0;
+}
+
+int field_inter_freq_neigh_cell_list::parse(libconfig::Setting& root)
+{
+  data->inter_freq_neigh_cell_list.resize((uint32_t)root.getLength());
+  data->inter_freq_neigh_cell_list_present = data->inter_freq_neigh_cell_list.size() > 0;
+  for (uint32_t i = 0; i < data->inter_freq_neigh_cell_list.size() && i < ASN1_RRC_MAX_CELL_BLACK; i++) {
+    if (not parse_enum_by_number(data->inter_freq_neigh_cell_list[i].q_offset_cell, "q_offset_cell", root[i])) {
+      ERROR("Missing field q_offset_cell in neigh_cell=%d\n", i);
+      return SRSRAN_ERROR;
+    }
+
+    unsigned int phys_cell_id = 0;
+    if (!root[i].lookupValue("phys_cell_id", phys_cell_id)) {
+      ERROR("Missing field phys_cell_id in neigh_cell=%d\n", i);
+      return SRSRAN_ERROR;
+    }
+    data->inter_freq_neigh_cell_list[i].pci = (uint16)phys_cell_id;
+  }
+  return 0;
+}
+
+int field_inter_freq_black_cell_list::parse(libconfig::Setting& root)
+{
+  data->inter_freq_black_cell_list.resize((uint32_t)root.getLength());
+  data->inter_freq_black_cell_list_present = data->inter_freq_black_cell_list.size() > 0;
+  for (uint32_t i = 0; i < data->inter_freq_black_cell_list.size() && i < ASN1_RRC_MAX_CELL_BLACK; i++) {
+    if (not parse_enum_by_number(data->inter_freq_black_cell_list[i].range, "range", root[i])) {
+      ERROR("Missing field range in black_cell=%d\n", i);
+      return SRSRAN_ERROR;
+    }
+    data->inter_freq_black_cell_list[i].range_present = true;
+
+    unsigned int start = 0;
+    if (!root[i].lookupValue("start", start)) {
+      ERROR("Missing field start in black_cell=%d\n", i);
+      return SRSRAN_ERROR;
+    }
+    data->inter_freq_black_cell_list[i].start = (uint16)start;
+  }
+  return 0;
+}
+
+int field_carrier_freq_list_utra_fdd::parse(libconfig::Setting& root)
+{
+  data->carrier_freq_list_utra_fdd.resize((uint32_t)root.getLength());
+  data->carrier_freq_list_utra_fdd_present = data->carrier_freq_list_utra_fdd.size() > 0;
+  for (uint32_t i = 0; i < data->carrier_freq_list_utra_fdd.size() && i < ASN1_RRC_MAX_UTRA_FDD_CARRIER; i++) {
+    unsigned int carrier_freq = 0;
+    if (!root[i].lookupValue("carrier_freq", carrier_freq)) {
+      fprintf(stderr, "Missing field `carrier_freq` in carrier_freq_list_utra_fdd=%d\n", i);
+      return SRSRAN_ERROR;
+    }
+    data->carrier_freq_list_utra_fdd[i].carrier_freq = carrier_freq;
+
+    unsigned int cell_resel_prio = 0;
+    if (root[i].lookupValue("cell_resel_prio", cell_resel_prio)) {
+      data->carrier_freq_list_utra_fdd[i].cell_resel_prio_present = true;
+      data->carrier_freq_list_utra_fdd[i].cell_resel_prio         = cell_resel_prio;
+    }
+
+    unsigned int thresh_x_high = 0;
+    if (!root[i].lookupValue("thresh_x_high", thresh_x_high)) {
+      ERROR("Missing field `thresh_x_high` in carrier_freq_list_utra_fdd=%d", i);
+      return SRSRAN_ERROR;
+    }
+    data->carrier_freq_list_utra_fdd[i].thresh_x_high = thresh_x_high;
+
+    unsigned int thresh_x_low = 0;
+    if (!root[i].lookupValue("thresh_x_low", thresh_x_low)) {
+      ERROR("Missing field `thresh_x_low` in carrier_freq_list_utra_fdd=%d", i);
+      return SRSRAN_ERROR;
+    }
+    data->carrier_freq_list_utra_fdd[i].thresh_x_low = thresh_x_low;
+
+    int q_rx_lev_min = 0;
+    if (!root[i].lookupValue("q_rx_lev_min", q_rx_lev_min)) {
+      ERROR("Missing field `q_rx_lev_min` in carrier_freq_list_utra_fdd=%d", i);
+      return SRSRAN_ERROR;
+    }
+    data->carrier_freq_list_utra_fdd[i].q_rx_lev_min = q_rx_lev_min;
+
+    int p_max_utra = 0;
+    if (!root[i].lookupValue("p_max_utra", p_max_utra)) {
+      ERROR("Missing field `p_max_utra` in carrier_freq_list_utra_fdd=%d", i);
+      return SRSRAN_ERROR;
+    }
+    data->carrier_freq_list_utra_fdd[i].p_max_utra = p_max_utra;
+
+    int q_qual_min = 0;
+    if (!root[i].lookupValue("q_qual_min", q_qual_min)) {
+      ERROR("Missing field `q_qual_min` in carrier_freq_list_utra_fdd=%d", i);
+      return SRSRAN_ERROR;
+    }
+    data->carrier_freq_list_utra_fdd[i].q_qual_min = q_qual_min;
+  }
+  return 0;
+}
+
+int field_carrier_freq_list_utra_tdd::parse(libconfig::Setting& root)
+{
+  data->carrier_freq_list_utra_tdd.resize((uint32_t)root.getLength());
+  data->carrier_freq_list_utra_tdd_present = data->carrier_freq_list_utra_tdd.size() > 0;
+  for (uint32_t i = 0; i < data->carrier_freq_list_utra_tdd.size() && i < ASN1_RRC_MAX_UTRA_TDD_CARRIER; i++) {
+    unsigned int carrier_freq = 0;
+    if (!root[i].lookupValue("carrier_freq", carrier_freq)) {
+      fprintf(stderr, "Missing field `carrier_freq` in carrier_freq_list_utra_tdd=%d\n", i);
+      return SRSRAN_ERROR;
+    }
+    data->carrier_freq_list_utra_tdd[i].carrier_freq = carrier_freq;
+
+    unsigned int cell_resel_prio = 0;
+    if (root[i].lookupValue("cell_resel_prio", cell_resel_prio)) {
+      data->carrier_freq_list_utra_tdd[i].cell_resel_prio_present = true;
+      data->carrier_freq_list_utra_tdd[i].cell_resel_prio         = cell_resel_prio;
+    }
+
+    unsigned int thresh_x_high = 0;
+    if (!root[i].lookupValue("thresh_x_high", thresh_x_high)) {
+      ERROR("Missing field `thresh_x_high` in carrier_freq_list_utra_tdd=%d", i);
+      return SRSRAN_ERROR;
+    }
+    data->carrier_freq_list_utra_tdd[i].thresh_x_high = thresh_x_high;
+
+    unsigned int thresh_x_low = 0;
+    if (!root[i].lookupValue("thresh_x_low", thresh_x_low)) {
+      ERROR("Missing field `thresh_x_low` in carrier_freq_list_utra_tdd=%d", i);
+      return SRSRAN_ERROR;
+    }
+    data->carrier_freq_list_utra_tdd[i].thresh_x_low = thresh_x_low;
+
+    int q_rx_lev_min = 0;
+    if (!root[i].lookupValue("q_rx_lev_min", q_rx_lev_min)) {
+      ERROR("Missing field `q_rx_lev_min` in carrier_freq_list_utra_tdd=%d", i);
+      return SRSRAN_ERROR;
+    }
+    data->carrier_freq_list_utra_tdd[i].q_rx_lev_min = q_rx_lev_min;
+
+    int p_max_utra = 0;
+    if (!root[i].lookupValue("p_max_utra", p_max_utra)) {
+      ERROR("Missing field `p_max_utra` in carrier_freq_list_utra_tdd=%d", i);
+      return SRSRAN_ERROR;
+    }
+    data->carrier_freq_list_utra_tdd[i].p_max_utra = p_max_utra;
   }
   return 0;
 }
@@ -175,7 +430,7 @@ int field_carrier_freqs_info_list::parse(libconfig::Setting& root)
     field_asn1_bitstring_number<asn1::fixed_bitstring<8>, uint8_t> ncc_permitted(
         "ncc_permitted", &data->carrier_freqs_info_list[i].common_info.ncc_permitted);
     if (ncc_permitted.parse(root[i])) {
-      ERROR("Error parsing `ncc_permitted` in carrier_freqs_info_lsit=%d", i);
+      ERROR("Error parsing `ncc_permitted` in carrier_freqs_info_list=%d", i);
       return SRSRAN_ERROR;
     }
 
@@ -1273,6 +1528,7 @@ static int parse_nr_cell_list(all_args_t* args, rrc_nr_cfg_t* rrc_cfg_nr, rrc_cf
     parse_opt_field(cell_cfg.phy_cell.rf_port, cellroot, "rf_port");
     HANDLEPARSERCODE(parse_required_field(cell_cfg.phy_cell.carrier.pci, cellroot, "pci"));
     HANDLEPARSERCODE(parse_required_field(cell_cfg.phy_cell.cell_id, cellroot, "cell_id"));
+    HANDLEPARSERCODE(parse_opt_field(cell_cfg.coreset0_idx, cellroot, "coreset0_idx"));
     HANDLEPARSERCODE(parse_required_field(cell_cfg.prach_root_seq_idx, cellroot, "root_seq_idx"));
     HANDLEPARSERCODE(parse_required_field(cell_cfg.tac, cellroot, "tac"));
 
@@ -1894,52 +2150,9 @@ int set_derived_args_nr(all_args_t* args_, rrc_nr_cfg_t* rrc_nr_cfg_, phy_cfg_t*
       ERROR("Only 10 MHz bandwidth supported.");
       return SRSRAN_ERROR;
     }
-    if (rrc_nr_cfg_->is_standalone) {
-      if (is_valid_arfcn(cfg.band, cfg.dl_arfcn) == false) {
-        ERROR("DL-ARFCN %d in band n%d not supported with coreset0 config.", cfg.dl_arfcn, cfg.band);
-        ERROR("Valid ARFCNs for band n%d are: %s", cfg.band, valid_arfcns_to_string(cfg.band).c_str());
-        return SRSRAN_ERROR;
-      }
-      if (cfg.duplex_mode == SRSRAN_DUPLEX_MODE_TDD) {
-        ERROR("Only FDD duplex supported in SA mode.");
-        return SRSRAN_ERROR;
-      }
-    }
   }
 
   return SRSRAN_SUCCESS;
-}
-
-// List of selected ARFCNs in band n3, n7 and n20 that match the coreset0 config
-using arfcn_list_t                           = std::list<uint32_t>;
-std::map<uint32_t, arfcn_list_t> valid_arfcn = {{3, {363500, 368500, 369500, 374500, 375000}},
-                                                {7, {525000, 526200, 531000}},
-                                                {20, {159000, 160200}}};
-
-std::string valid_arfcns_to_string(uint32_t band)
-{
-  std::string band_string;
-  if (valid_arfcn.find(band) != valid_arfcn.end()) {
-    for (const auto& arfcn : valid_arfcn.at(band)) {
-      band_string += std::to_string(arfcn);
-      band_string += ", ";
-    }
-  }
-  return band_string;
-}
-
-bool is_valid_arfcn(uint32_t band, uint32_t dl_arfcn)
-{
-  if (valid_arfcn.find(band) == valid_arfcn.end()) {
-    return false;
-  }
-  const auto& arfcn_list = valid_arfcn.at(band);
-  for (const auto& arfcn : arfcn_list) {
-    if (arfcn == dl_arfcn) {
-      return true;
-    }
-  }
-  return false;
 }
 
 } // namespace enb_conf_sections
@@ -2003,7 +2216,7 @@ int parse_sib2(std::string filename, sib_type2_s* data)
 
   acbarring_data.add_field(
       make_asn1_enum_number_str_parser("factor", &data->ac_barr_info.ac_barr_for_mo_data.ac_barr_factor));
-  acbarring_data.add_field(make_asn1_enum_number_parser("fime", &data->ac_barr_info.ac_barr_for_mo_data.ac_barr_time));
+  acbarring_data.add_field(make_asn1_enum_number_parser("time", &data->ac_barr_info.ac_barr_for_mo_data.ac_barr_time));
   acbarring_data.add_field(make_asn1_bitstring_number_parser(
       "for_special_ac", &data->ac_barr_info.ac_barr_for_mo_data.ac_barr_for_special_ac));
 
@@ -2240,12 +2453,62 @@ int parse_sib4(std::string filename, sib_type4_s* data)
   return parser::parse_section(std::move(filename), &sib4);
 }
 
+int parse_sib5(std::string filename, sib_type5_s* data)
+{
+  parser::section sib5("sib5");
+
+  // interFreqCarrierFreqList
+  parser::section inter_freq_carrier_freq_list("inter_freq_carrier_freq_list");
+  sib5.add_subsection(&inter_freq_carrier_freq_list);
+  bool dummy_bool = false;
+  inter_freq_carrier_freq_list.set_optional(&dummy_bool);
+  inter_freq_carrier_freq_list.add_field(new field_inter_freq_carrier_freq_list(data));
+
+  return parser::parse_section(std::move(filename), &sib5);
+}
+
+int parse_sib6(std::string filename, sib_type6_s* data)
+{
+  parser::section sib6("sib6");
+
+  // t-ReselectionUTRA
+  sib6.add_field(new parser::field<uint8>("t_resel_utra", &data->t_resel_utra));
+
+  // t-ReselectionUTRA-SF
+  parser::section t_resel_utra_sf("t_resel_utra_sf");
+  sib6.add_subsection(&t_resel_utra_sf);
+  t_resel_utra_sf.set_optional(&data->t_resel_utra_sf_present);
+  t_resel_utra_sf.add_field(make_asn1_enum_number_str_parser("sf_medium", &data->t_resel_utra_sf.sf_medium));
+  t_resel_utra_sf.add_field(make_asn1_enum_number_str_parser("sf_high", &data->t_resel_utra_sf.sf_high));
+
+  // carrierFreqListUTRA-FDD
+  parser::section carrier_freq_list_utra_fdd("carrier_freq_list_utra_fdd");
+  sib6.add_subsection(&carrier_freq_list_utra_fdd);
+  bool dummy_bool = false;
+  carrier_freq_list_utra_fdd.set_optional(&dummy_bool);
+  carrier_freq_list_utra_fdd.add_field(new field_carrier_freq_list_utra_fdd(data));
+
+  // carrierFreqListUTRA-TDD
+  parser::section carrier_freq_list_utra_tdd("carrier_freq_list_utra_tdd");
+  sib6.add_subsection(&carrier_freq_list_utra_tdd);
+  carrier_freq_list_utra_tdd.set_optional(&dummy_bool);
+  carrier_freq_list_utra_tdd.add_field(new field_carrier_freq_list_utra_tdd(data));
+
+  return parser::parse_section(std::move(filename), &sib6);
+}
+
 int parse_sib7(std::string filename, sib_type7_s* data)
 {
   parser::section sib7("sib7");
 
   sib7.add_field(new parser::field<uint8>("t_resel_geran", &data->t_resel_geran));
-  // TODO: t_resel_geran_sf
+
+  parser::section t_resel_geran_sf("t_resel_geran_sf");
+  sib7.add_subsection(&t_resel_geran_sf);
+  t_resel_geran_sf.set_optional(&data->t_resel_geran_sf_present);
+
+  t_resel_geran_sf.add_field(make_asn1_enum_number_str_parser("sf_medium", &data->t_resel_geran_sf.sf_medium));
+  t_resel_geran_sf.add_field(make_asn1_enum_number_str_parser("sf_high", &data->t_resel_geran_sf.sf_high));
 
   data->carrier_freqs_info_list_present = true;
   parser::section geran_neigh("carrier_freqs_info_list");
@@ -2317,6 +2580,8 @@ int parse_sibs(all_args_t* args_, rrc_cfg_t* rrc_cfg_, srsenb::phy_cfg_t* phy_co
   sib_type2_s*     sib2  = &rrc_cfg_->sibs[1].set_sib2();
   sib_type3_s*     sib3  = &rrc_cfg_->sibs[2].set_sib3();
   sib_type4_s*     sib4  = &rrc_cfg_->sibs[3].set_sib4();
+  sib_type5_s*     sib5  = &rrc_cfg_->sibs[4].set_sib5();
+  sib_type6_s*     sib6  = &rrc_cfg_->sibs[5].set_sib6();
   sib_type7_s*     sib7  = &rrc_cfg_->sibs[6].set_sib7();
   sib_type9_s*     sib9  = &rrc_cfg_->sibs[8].set_sib9();
   sib_type13_r9_s* sib13 = &rrc_cfg_->sibs[12].set_sib13_v920();
@@ -2382,6 +2647,20 @@ int parse_sibs(all_args_t* args_, rrc_cfg_t* rrc_cfg_, srsenb::phy_cfg_t* phy_co
   // Generate SIB4 if defined in mapping info
   if (sib_is_present(sib1->sched_info_list, sib_type_e::sib_type4)) {
     if (sib_sections::parse_sib4(args_->enb_files.sib_config, sib4) != SRSRAN_SUCCESS) {
+      return SRSRAN_ERROR;
+    }
+  }
+
+  // Generate SIB5 if defined in mapping info
+  if (sib_is_present(sib1->sched_info_list, sib_type_e::sib_type5)) {
+    if (sib_sections::parse_sib5(args_->enb_files.sib_config, sib5) != SRSRAN_SUCCESS) {
+      return SRSRAN_ERROR;
+    }
+  }
+
+  // Generate SIB6 if defined in mapping info
+  if (sib_is_present(sib1->sched_info_list, sib_type_e::sib_type6)) {
+    if (sib_sections::parse_sib6(args_->enb_files.sib_config, sib6) != SRSRAN_SUCCESS) {
       return SRSRAN_ERROR;
     }
   }

@@ -184,6 +184,13 @@ uint32_t rlc_am_nr_tx::build_new_pdu(uint8_t* payload, uint32_t nof_bytes)
     RlcInfo("Not enough bytes for payload plus header. nof_bytes=%d", nof_bytes);
     return 0;
   }
+
+  // do not build any more PDU if window is already full
+  if (tx_window->full()) {
+    RlcInfo("Cannot build data PDU - Tx window full.");
+    return 0;
+  }
+
   // Read new SDU from TX queue
   unique_byte_buffer_t tx_sdu;
   RlcDebug("Reading from RLC SDU queue. Queue size %d", tx_sdu_queue.size());
@@ -786,17 +793,20 @@ void rlc_am_nr_tx::handle_control_pdu(uint8_t* payload, uint32_t nof_bytes)
 
   /*
    * Sanity check the received status report.
-   * Checking if the ACK_SN is inside the the TX_WINDOW makes sure we discard out of order status reports
-   * Checking if ACK_SN > Tx_Next makes sure we do not receive a ACK/NACK for something we did not TX
+   * Checking if the ACK_SN is inside the valid ACK_SN window (the TX window "off-by-one")
+   * makes sure we discard out of order status reports.
+   * Checking if ACK_SN > Tx_Next + 1 makes sure we do not receive a ACK/NACK for something we did not TX
+   * ACK_SN may be equal to TX_NEXT + 1, if not all SDU segments with SN=TX_NEXT have been transmitted.
    */
-  if (not inside_tx_window(status.ack_sn)) {
+  if (not valid_ack_sn(status.ack_sn)) {
     RlcInfo("Received ACK with SN outside of TX_WINDOW, ignoring status report. ACK_SN=%d, TX_NEXT_ACK=%d.",
             status.ack_sn,
             st.tx_next_ack);
     info_state();
     return;
   }
-  if (tx_mod_base_nr(status.ack_sn) > tx_mod_base_nr(st.tx_next)) {
+
+  if (tx_mod_base_nr(status.ack_sn) > tx_mod_base_nr(st.tx_next + 1)) {
     RlcWarning("Received ACK with SN larger than TX_NEXT, ignoring status report.  SN=%d, TX_NEXT_ACK=%d, TX_NEXT=%d",
                status.ack_sn,
                st.tx_next_ack,
@@ -812,7 +822,7 @@ void rlc_am_nr_tx::handle_control_pdu(uint8_t* payload, uint32_t nof_bytes)
    *   - if t-PollRetransmit is running:
    *     - stop and reset t-PollRetransmit.
    */
-  if (tx_mod_base_nr(st.poll_sn) <= tx_mod_base_nr(status.ack_sn)) {
+  if (tx_mod_base_nr(st.poll_sn) < tx_mod_base_nr(status.ack_sn)) {
     if (poll_retransmit_timer.is_running()) {
       RlcDebug("Received ACK or NACK for POLL_SN=%d. Stopping t-PollRetransmit", st.poll_sn);
       poll_retransmit_timer.stop();
@@ -856,17 +866,16 @@ void rlc_am_nr_tx::handle_control_pdu(uint8_t* payload, uint32_t nof_bytes)
         rlc_status_nack_t nack = {};
         nack.nack_sn           = range_sn;
         if (status.nacks[nack_idx].has_so) {
+          // Apply so_start to first range item
           if (range_sn == status.nacks[nack_idx].nack_sn) {
-            // First SN
-            nack.has_so   = true;
             nack.so_start = status.nacks[nack_idx].so_start;
-            nack.so_end   = rlc_status_nack_t::so_end_of_sdu;
-          } else if (range_sn == (status.nacks[nack_idx].nack_sn + status.nacks[nack_idx].nack_range - 1)) {
-            // Last SN
-            nack.has_so = true;
-            // This might be first+last item at the same time, so don't change so_start here
+          }
+          // Apply so_end to last range item
+          if (range_sn == (status.nacks[nack_idx].nack_sn + status.nacks[nack_idx].nack_range - 1)) {
             nack.so_end = status.nacks[nack_idx].so_end;
           }
+          // Enable has_so only if the offsets do not span the whole SDU
+          nack.has_so = (nack.so_start != 0) || (nack.so_end != rlc_status_nack_t::so_end_of_sdu);
         }
         handle_nack(nack, retx_sn_set);
       }
@@ -1313,6 +1322,21 @@ bool rlc_am_nr_tx::inside_tx_window(uint32_t sn) const
 }
 
 /*
+ * This function is used to check if a received status report
+ * as a valid ACK_SN.
+ *
+ * ACK_SN may be equal to TX_NEXT + AM_Window_Size if the PDU
+ * with SN=TX_NEXT+AM_Window_Size has been received by the RX
+ * An ACK_SN == Tx_Next_Ack doesn't ACK or NACKs any PDUs, as
+ * such, such a status report can be discarded.
+ */
+bool rlc_am_nr_tx::valid_ack_sn(uint32_t sn) const
+{
+  // Tx_Next_Ack < SN <= TX_Next + AM_Window_Size
+  return (0 < tx_mod_base_nr(sn)) && (tx_mod_base_nr(sn) <= tx_window_size());
+}
+
+/*
  * Debug Helpers
  */
 void rlc_am_nr_tx::debug_state() const
@@ -1422,19 +1446,23 @@ void rlc_am_nr_rx::handle_data_pdu(uint8_t* payload, uint32_t nof_bytes)
   RlcHexInfo(payload, nof_bytes, "Rx data PDU SN=%d (%d B)", header.sn, nof_bytes);
   log_rlc_am_nr_pdu_header_to_string(logger.debug, header, rb_name);
 
+  // Trigger polling if poll bit is set.
+  // We do this before checking if the PDU is inside the RX window,
+  // as the RX window may have advanced without the TX having received the ACKs
+  // This can cause a data stall, whereby the TX keeps retransmiting
+  // a PDU outside of the Rx window.
+  // Also, we do this before discarding duplicate SDUs/SDU segments
+  // Because t-PollRetransmit may transmit a PDU that was already
+  // received.
+  if (header.p != 0U) {
+    RlcInfo("status packet requested through polling bit");
+    do_status = true;
+  }
+
   // Check whether SDU is within Rx Window
   if (!inside_rx_window(header.sn)) {
     RlcInfo("SN=%d outside rx window [%d:%d] - discarding", header.sn, st.rx_next, st.rx_next + rx_window_size());
     return;
-  }
-
-  // Trigger polling if poll bit is set.
-  // We do this before discarding duplicate SDUs/SDU segments
-  // Because t-PollRetransmit may transmit a PDU that was already
-  // received.
-  if (header.p) {
-    RlcInfo("status packet requested through polling bit");
-    do_status = true;
   }
 
   // Section 5.2.3.2.2, discard duplicate PDUs
@@ -1847,11 +1875,11 @@ void rlc_am_nr_rx::timer_expired(uint32_t timeout_id)
       }
     }
     st.rx_highest_status = sn_upd;
-    if (not inside_rx_window(st.rx_highest_status)) {
+    if (not valid_ack_sn(st.rx_highest_status)) {
       RlcError("Rx_Highest_Status not inside RX window");
       debug_state();
     }
-    srsran_assert(inside_rx_window(st.rx_highest_status), "Error: rx_highest_status assigned outside rx window");
+    srsran_assert(valid_ack_sn(st.rx_highest_status), "Error: rx_highest_status assigned outside rx window");
 
     bool restart_reassembly_timer = false;
     if (rx_mod_base_nr(st.rx_next_highest) > rx_mod_base_nr(st.rx_highest_status + 1)) {
@@ -1940,10 +1968,25 @@ uint32_t rlc_am_nr_rx::rx_window_size() const
   return am_window_size(cfg.rx_sn_field_length);
 }
 
-bool rlc_am_nr_rx::inside_rx_window(uint32_t sn)
+bool rlc_am_nr_rx::inside_rx_window(uint32_t sn) const
 {
   // RX_Next <= SN < RX_Next + AM_Window_Size
   return rx_mod_base_nr(sn) < rx_window_size();
+}
+
+/*
+ * This function is used to check if the Rx_Highest_Status is
+ * valid when t-Reasseambly expires.
+ *
+ * ACK_SN may be equal to RX_NEXT + AM_Window_Size if the PDU
+ * with SN=RX_NEXT+AM_Window_Size has been received by the RX.
+ * An ACK_SN == Rx_Next should not update Rx_Highest_Status,
+ * it should be updated when Rx_Next is updated.
+ */
+bool rlc_am_nr_rx::valid_ack_sn(uint32_t sn) const
+{
+  // RX_Next < SN <= RX_Next + AM_Window_Size
+  return (0 < rx_mod_base_nr(sn)) && (rx_mod_base_nr(sn) <= rx_window_size());
 }
 
 /*
