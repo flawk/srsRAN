@@ -2940,9 +2940,7 @@ int rx_nack_range_with_so_starting_with_full_sdu_test(rlc_am_nr_sn_size_t sn_siz
   auto&       test_logger = srslog::fetch_basic_logger("TESTER  ");
   rlc_am      rlc1(srsran_rat_t::nr, srslog::fetch_basic_logger("RLC_AM_1"), 1, &tester, &tester, &timers);
   rlc_am      rlc2(srsran_rat_t::nr, srslog::fetch_basic_logger("RLC_AM_2"), 1, &tester, &tester, &timers);
-  std::string str =
-      "Rx NACK range test with SO starting with full SDU (" + std::to_string(to_number(sn_size)) + " bit SN)";
-  test_delimit_logger delimiter(str.c_str());
+  test_delimit_logger delimiter("Rx NACK range test with SO starting with full SDU ({} bit SN)", to_number(sn_size));
 
   rlc_am_nr_tx* tx1 = dynamic_cast<rlc_am_nr_tx*>(rlc1.get_tx());
   rlc_am_nr_rx* rx1 = dynamic_cast<rlc_am_nr_rx*>(rlc1.get_rx());
